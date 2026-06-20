@@ -1,0 +1,2141 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>Wheel of Names Clone</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
+    <!-- Confetti library -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', Roboto, -apple-system, Helvetica Neue, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #121212;
+            color: #e0e0e0;
+            box-sizing: border-box;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* ===== UTILITY ===== */
+        .q-icon {
+            font-size: 1.2rem;
+            width: 1em;
+            height: 1em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .q-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font: inherit;
+            color: inherit;
+            outline: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: none;
+            font-weight: 500;
+            transition: background .2s, color .2s;
+            position: relative;
+        }
+        .q-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .q-btn--flat {
+            background: transparent;
+        }
+        .q-btn--round {
+            border-radius: 50%;
+            min-width: 36px;
+            justify-content: center;
+            padding: 0 8px;
+        }
+        .q-btn--no-caps {
+            text-transform: none;
+        }
+        .q-btn--unelevated {
+            box-shadow: none;
+        }
+        .q-btn--dense {
+            min-height: 28px;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .q-btn--rectangle {
+            border-radius: 3px;
+        }
+        .bg-primary {
+            background: #1976d2;
+        }
+        .bg-primary:hover {
+            background: #1565c0;
+        }
+        .text-white {
+            color: #fff;
+        }
+        .bg-warning {
+            background: #f2c037;
+        }
+        .text-black {
+            color: #000;
+        }
+        .bg-grey-7 {
+            background: #757575;
+        }
+        .text-grey-7 {
+            color: #757575;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
+        .flex {
+            display: flex;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .no-wrap {
+            flex-wrap: nowrap;
+        }
+        .gap-sm {
+            gap: 8px;
+        }
+        .gap {
+            gap: 16px;
+        }
+        .relative-position {
+            position: relative;
+        }
+        .absolute {
+            position: absolute;
+        }
+        .fixed {
+            position: fixed;
+        }
+        .fit {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .q-space {
+            flex: 1;
+        }
+        .ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rounded-borders {
+            border-radius: 4px;
+        }
+        .shadow-1 {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+        .shadow-2 {
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2), 0 3px 1px -2px rgba(0, 0, 0, 0.15);
+        }
+        .q-badge {
+            background: #1976d2;
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1.2;
+        }
+        .q-badge--rounded {
+            border-radius: 20px;
+        }
+        .q-badge--floating {
+            position: absolute;
+            top: -6px;
+            right: -3px;
+            font-size: 10px;
+            padding: 1px 5px;
+        }
+        .q-checkbox {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #e0e0e0;
+        }
+        .q-checkbox__inner {
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            border: 2px solid #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .22s, border-color .22s;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .q-checkbox__inner--truthy {
+            background: #1976d2;
+            border-color: #1976d2;
+        }
+        .q-checkbox__inner--truthy .q-checkbox__truthy {
+            stroke-dashoffset: 0;
+        }
+        .q-checkbox__inner--falsy .q-checkbox__truthy,
+        .q-checkbox__inner--falsy .q-checkbox__indet {
+            stroke-dashoffset: 30;
+            opacity: 0;
+        }
+        .q-checkbox__truthy {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 3px;
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+            transition: stroke-dashoffset .18s cubic-bezier(.4, 0, .6, 1);
+        }
+        .q-checkbox__indet {
+            fill: #fff;
+            opacity: 0;
+            transition: opacity .22s;
+        }
+        .q-checkbox__label {
+            cursor: pointer;
+        }
+        .q-checkbox input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .q-checkbox--dark .q-checkbox__inner {
+            border-color: #888;
+        }
+        .q-checkbox--dark .q-checkbox__inner--truthy {
+            border-color: #1976d2;
+        }
+
+        /* ===== HEADER ===== */
+        .q-header {
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2), 0 3px 1px -2px rgba(0, 0, 0, 0.15);
+            height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .q-toolbar {
+            min-height: 50px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+        .q-toolbar__title {
+            font-size: 21px;
+            font-weight: 400;
+            letter-spacing: .01em;
+            padding: 0 8px;
+            white-space: nowrap;
+        }
+        .q-toolbar img {
+            border-radius: 8px;
+        }
+        .q-badge--warning {
+            background: #f2c037;
+            color: #000;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 50px);
+            position: relative;
+            overflow: hidden;
+            padding: 8px 8px 8px 8px;
+            background: #0d0d0d;
+            background-image: 
+                radial-gradient(circle at 10% 50%, rgba(30, 60, 130, 0.25) 0%, transparent 50%),
+                radial-gradient(circle at 90% 50%, rgba(130, 30, 30, 0.2) 0%, transparent 50%);
+        }
+        .main-content {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: transparent;
+            height: 100%;
+            border-radius: 4px;
+        }
+        .main-content--full {
+            width: 100%;
+        }
+
+        /* ===== RIGHT PANEL ===== */
+        .right-panel-wrapper {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+            transition: all 0.3s ease;
+            padding: 0 0 0 0;
+        }
+        .right-panel-wrapper--collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            overflow: visible;
+        }
+        .right-panel {
+            background: #1e1e1e;
+            border-left: 1px solid rgba(255, 255, 255, 0.06);
+            width: 320px;
+            min-width: 320px;
+            max-width: 50vw;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2), 0 3px 1px -2px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-radius: 8px;
+            margin: 0 0 0 0;
+        }
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 10px;
+            background: transparent;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05), 0 0 40px rgba(255, 255, 255, 0.02);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .right-panel--collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            border-left: none;
+            box-shadow: none;
+            overflow: visible;
+            margin: 0;
+        }
+        .right-panel .q-card {
+            background: #1e1e1e;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            min-width: 320px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .right-panel--collapsed .q-card {
+            display: none;
+        }
+
+        /* ===== TOGGLE BUTTON ===== */
+        .panel-toggle-btn {
+            position: absolute;
+            left: -18px;
+            top: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+            transition: transform 0.3s ease, left 0.3s ease, right 0.3s ease;
+        }
+        .panel-toggle-btn:hover {
+            background: #1565c0;
+            transform: scale(1.05);
+        }
+        .panel-toggle-btn--collapsed {
+            left: auto;
+            right: -18px;
+            top: 24px;
+        }
+        .panel-toggle-btn--collapsed:hover {
+            transform: scale(1.05);
+        }
+
+        /* ===== TABS ===== */
+        .q-tabs {
+            display: flex;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: #1a1a1a;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
+        .q-tabs--dense .q-tab {
+            min-height: 36px;
+            padding: 0 12px;
+        }
+        .q-tabs__content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+        .q-tabs__content--align-justify .q-tab {
+            flex: 1;
+        }
+        .q-tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 16px;
+            min-height: 48px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            position: relative;
+            transition: color .3s, background .3s;
+            text-transform: none;
+            font-weight: 500;
+            font-size: 14px;
+            user-select: none;
+            border-bottom: 2px solid transparent;
+        }
+        .q-tab:hover {
+            color: #fff;
+        }
+        .q-tab--active {
+            color: #1976d2;
+            border-bottom-color: #1976d2;
+        }
+        .q-tab--inactive {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .q-tab__content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+        }
+        .q-tab__label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .q-tab__indicator {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            height: 2px;
+            background: #1976d2;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            opacity: 0;
+        }
+        .q-tab--active .q-tab__indicator {
+            opacity: 1;
+        }
+
+        /* ===== TAB PANELS ===== */
+        .q-tab-panels {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 0 4px 4px;
+            background: #1a1a1a;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        .q-tab-panels--dark {
+            background: #1a1a1a;
+        }
+        .q-panel {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+        .q-tab-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+        }
+
+        /* ===== EDITOR BUTTONS ===== */
+        .editor-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .editor-buttons .q-btn {
+            font-size: 12px;
+            padding: 4px 8px;
+            min-height: 28px;
+            border-radius: 3px;
+            background: #1976d2;
+            color: #fff;
+        }
+        .editor-buttons .q-btn:hover {
+            background: #1565c0;
+        }
+        .editor-buttons .q-btn i {
+            font-size: 12px;
+        }
+
+        /* ===== BASIC EDITOR ===== */
+        .basic-editor {
+            border: 1px solid #333;
+            border-radius: 4px;
+            flex: 1;
+            padding: 12px;
+            font-family: 'Quicksand', sans-serif;
+            overflow: auto;
+            min-height: 120px;
+            background: #141414;
+            color: #e0e0e0;
+            outline: none;
+        }
+        .basic-editor:focus {
+            border-color: #1976d2;
+        }
+        .basic-editor div {
+            padding: 2px 0;
+        }
+        .basic-editor div:last-child {
+            padding-bottom: 0;
+        }
+
+        /* ===== ADD WHEEL BUTTON ===== */
+        .q-btn-group {
+            display: inline-flex;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .q-btn-group .q-btn {
+            border-radius: 0;
+        }
+        .q-btn-group .q-btn:first-child {
+            border-radius: 3px 0 0 3px;
+        }
+        .q-btn-group .q-btn:last-child {
+            border-radius: 0 3px 3px 0;
+        }
+        .q-btn-dropdown--split .q-btn-dropdown__arrow-container {
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0 4px;
+        }
+        .q-btn-dropdown__arrow {
+            font-size: 14px;
+        }
+        .q-btn-dropdown__arrow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+        }
+
+        /* ===== BETA BADGE ===== */
+        .beta-badge {
+            position: absolute;
+            left: -4px;
+            top: -6px;
+            background: #f2c037;
+            color: #000;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            z-index: 5;
+        }
+
+        /* ===== PANEL FOOTER ===== */
+        .panel-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            background: #1a1a1a;
+            border-radius: 0 0 4px 4px;
+            flex-shrink: 0;
+            min-height: 40px;
+        }
+        .panel-footer a {
+            color: #888;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .panel-footer a:hover {
+            color: #fff;
+        }
+        .panel-footer .version-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .panel-footer .new-badge {
+            background: #1976d2;
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 0 8px;
+            border-radius: 12px;
+            text-decoration: none;
+            line-height: 22px;
+        }
+        .panel-footer .new-badge:hover {
+            background: #1565c0;
+        }
+
+        /* ===== FULLSCREEN MODE ===== */
+        .q-header--fullscreen {
+            background: #0d0d0d !important;
+            border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6) !important;
+        }
+        .q-header--fullscreen .q-toolbar {
+            min-height: 42px;
+        }
+        .q-header--fullscreen .q-toolbar__title {
+            font-size: 17px;
+        }
+        .q-header--fullscreen .q-btn {
+            padding: 2px 10px;
+            min-height: 30px;
+            font-size: 0.85rem;
+        }
+        .q-header--fullscreen .hide-in-fullscreen {
+            display: none !important;
+        }
+        .q-header--fullscreen .show-in-fullscreen {
+            display: flex !important;
+        }
+        .show-in-fullscreen {
+            display: none;
+        }
+
+        /* ===== MOBILE ===== */
+        .hamburger {
+            display: none;
+        }
+        .desktop-only {
+            display: flex;
+        }
+        .mobile-only {
+            display: none;
+        }
+
+        .panel-overlay {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 50px);
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        .panel-overlay--open {
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .hamburger {
+                display: inline-flex;
+            }
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-only {
+                display: flex !important;
+            }
+            .right-panel {
+                position: fixed;
+                top: 58px;
+                right: -420px;
+                height: calc(100vh - 66px);
+                max-width: 85vw;
+                width: 380px;
+                z-index: 1000;
+                transition: right 0.3s ease;
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+                border-radius: 8px;
+                margin: 0 8px 8px 0;
+            }
+            .right-panel--mobile-open {
+                right: 8px;
+            }
+            .right-panel .q-card {
+                min-width: 0;
+            }
+            .panel-toggle-btn {
+                display: none !important;
+            }
+            .right-panel-wrapper {
+                width: auto !important;
+            }
+            .main-content--with-panel {
+                width: 100%;
+            }
+            .main-layout {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .q-toolbar {
+                padding: 0 8px;
+            }
+            .q-toolbar__title {
+                font-size: 17px;
+            }
+            .right-panel {
+                width: 100%;
+                max-width: 100%;
+                right: -100%;
+                top: 58px;
+                height: calc(100vh - 66px);
+                margin: 0;
+                border-radius: 8px 0 0 8px;
+            }
+            .right-panel--mobile-open {
+                right: 0;
+            }
+            .q-tab {
+                padding: 0 8px;
+                font-size: 13px;
+            }
+            .editor-buttons .q-btn {
+                font-size: 11px;
+                padding: 3px 6px;
+                min-height: 24px;
+            }
+        }
+
+        /* scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .hidden-file {
+            display: none !important;
+        }
+
+        /* Wheel container */
+        #canvas-wrapper {
+            background: transparent !important;
+        }
+        #canvas-wrapper canvas {
+            background: transparent !important;
+            box-shadow: none !important;
+        }
+        .workspace {
+            background: transparent;
+        }
+        #wheel-container {
+            background: transparent !important;
+        }
+
+        /* ===== WINNER MODAL ===== */
+        .winner-modal-overlay {
+            position: fixed;
+            inset: 0;
+            background-color: rgba(0, 0, 0, 0.75);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.2s ease;
+        }
+        .winner-modal-overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+        .winner-modal-box {
+            background-color: #2f2f2f;
+            border-radius: 4px;
+            overflow: hidden;
+            width: 640px;
+            min-width: 240px;
+            max-width: 100%;
+            box-shadow: 0 1px 5px #fff3, 0 2px 2px #ffffff24, 0 3px 1px -2px #ffffff1f;
+            transform: scale(0.2);
+            transition: transform 0.2s ease-in-out;
+        }
+        .winner-modal-overlay.active .winner-modal-box {
+            transform: scale(1);
+        }
+        .winner-modal-header {
+            color: white;
+            padding: 16px;
+            font-size: 1.2rem;
+            font-weight: 700;
+            text-align: left;
+            transition: background-color 0.5s ease;
+        }
+        .winner-modal-body {
+            padding: 20px 20px;
+            text-align: center;
+            color: white;
+        }
+        .winner-text {
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 30px;
+        }
+        .winner-modal-footer {
+            padding: 10px 20px;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            background-color: #2f2f2f;
+        }
+        .winner-modal-footer .close-btn {
+            background-color: transparent;
+            color: #ccc;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: background-color 0.2s, color 0.2s;
+        }
+        .winner-modal-footer .close-btn:hover {
+            background-color: transparent;
+            color: white;
+        }
+        .winner-modal-footer .remove-btn {
+            background-color: #3369e8;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 16px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            transition: background-color 0.2s;
+        }
+        .winner-modal-footer .remove-btn:hover {
+            background-color: #2855c4;
+        }
+
+        /* ===== CONFITTI CANVAS ===== */
+        .confetti-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 999;
+        }
+
+        /* ===== CUSTOMIZE MODAL ===== */
+        .config-checkbox {
+            width: 18px;
+            height: 18px;
+            border-radius: 3px;
+            accent-color: #3369e8;
+            cursor: pointer;
+        }
+        .custom-range {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 4px;
+            border-radius: 2px;
+            background: #3c4043;
+            outline: none;
+        }
+        .custom-range::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            appearance: none;
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #3369e8;
+            cursor: pointer;
+            transition: transform 0.1s;
+        }
+        .custom-range::-webkit-slider-thumb:hover {
+            transform: scale(1.2);
+        }
+        .slider-ticks {
+            display: flex;
+            justify-content: space-between;
+            color: #9aa0a6;
+            font-size: 0.75rem;
+            margin-top: 4px;
+            padding: 0 4px;
+        }
+        .wheel-overlay {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            text-align: center;
+            pointer-events: none;
+            z-index: 20;
+            text-shadow: 2px 2px 8px rgba(0,0,0,0.95), -1px -1px 2px rgba(0,0,0,0.6);
+            font-family: 'Quicksand', sans-serif;
+            transition: opacity 0.3s ease;
+        }
+        .modal-overlay {
+            background-color: rgba(0,0,0,0.6);
+            z-index: 3000;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="q-header" id="mainHeader">
+        <div class="q-toolbar">
+            <img src="https://wheelofnames.com/images/logo-dark-background-38.png" alt="logo" width="38" height="38" style="border-radius:8px; flex-shrink:0;">
+            <span class="q-toolbar__title ellipsis" style="flex-shrink:1; min-width:0;">wheelofnames.com</span>
+            <span class="q-badge q-badge--warning hide-in-fullscreen" style="flex-shrink:0;">PREMIUM</span>
+            <div class="q-space"></div>
+
+            <!-- Desktop buttons -->
+            <div class="row items-center no-wrap gap-sm desktop-only hide-in-fullscreen">
+                <button class="q-btn q-btn--flat q-btn--no-caps" onclick="openCustomizeModal()"><i class="fas fa-palette"></i> Customize</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps" onclick="createNewWheel()"><i class="fas fa-file"></i> New</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps" onclick="alert('Demo feature')"><i class="fas fa-folder-open"></i> Open</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps" onclick="alert('Demo feature')"><i class="fas fa-save"></i> Save</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps" onclick="alert('Demo feature')"><i class="fas fa-share-alt"></i> Share</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps" onclick="alert('Demo feature')"><i class="fas fa-search"></i> Gallery</button>
+                <button class="q-btn q-btn--flat q-btn--round" onclick="toggleFullscreen()" aria-label="Fullscreen" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
+
+                <div style="position:relative; display:inline-block;">
+                    <button class="q-btn q-btn--flat q-btn--no-caps" onclick="toggleMoreMenu()"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="q-menu" id="moreMenu" style="display:none; position:absolute; right:0; top:100%; background:#2a2a2a; border-radius:4px; min-width:200px; box-shadow:0 4px 16px rgba(0,0,0,0.5); padding:8px 0; z-index:3000;">
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-comment" style="width:24px;"></i> Feedback</div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-question-circle" style="width:24px;"></i> FAQ</div>
+                        <div style="height:1px; background:rgba(255,255,255,0.06); margin:4px 12px;"></div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-file-arrow-up" style="width:24px;"></i> Import Spreadsheet</div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-user-alt" style="width:24px;"></i> My account</div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-cog" style="width:24px;"></i> Preferences</div>
+                    </div>
+                </div>
+
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-globe"></i> English</button>
+            </div>
+
+            <!-- Fullscreen buttons -->
+            <div class="row items-center no-wrap gap-sm show-in-fullscreen">
+                <button class="q-btn q-btn--flat q-btn--round"><i class="fas fa-folder-open"></i></button>
+                <button class="q-btn q-btn--flat q-btn--round" onclick="toggleFullscreen()"><i class="fas fa-compress"></i></button>
+            </div>
+
+            <!-- Mobile hamburger -->
+            <button class="q-btn q-btn--flat q-btn--round hamburger" id="hamburgerBtn" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== MAIN LAYOUT ===== -->
+    <div class="main-layout">
+
+        <!-- ===== MAIN CONTENT AREA (wheel) ===== -->
+        <div class="main-content" id="mainContent">
+            <div id="wheel-container" class="flex-1 flex items-center justify-center relative w-full h-full p-4 md:p-8" style="background:transparent;">
+                <div class="relative cursor-pointer" id="canvas-wrapper" onclick="startSpin()">
+                    <canvas id="wheel" width="800" height="800" class="max-w-full max-h-full rounded-full"></canvas>
+                    <!-- Overlay instructions -->
+                    <div id="wheel-overlay" class="wheel-overlay flex flex-col items-center justify-center h-full w-full" style="opacity:0;">
+                        <div class="text-3xl md:text-5xl text-white mb-[15%] font-extrabold tracking-wide drop-shadow-lg">Click to spin</div>
+                        <div class="text-lg md:text-xl text-gray-300 mt-[10%] tracking-wide font-semibold drop-shadow-md">or press ctrl+enter</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT PANEL WRAPPER ===== -->
+        <div class="right-panel-wrapper" id="panelWrapper">
+            <!-- Toggle button (desktop) -->
+            <button class="panel-toggle-btn" id="panelToggleBtn" onclick="togglePanel()" aria-label="Toggle panel">
+                <i class="fas fa-chevron-right" id="toggleIcon"></i>
+            </button>
+
+            <!-- RIGHT PANEL -->
+            <div class="right-panel" id="rightPanel">
+                <div class="q-card q-card--dark full-height flex f-col">
+
+                    <!-- TABS -->
+                    <div class="q-tabs q-tabs--dense" role="tablist">
+                        <div class="q-tabs__content q-tabs__content--align-justify">
+                            <div class="q-tab q-tab--active" role="tab" aria-selected="true" onclick="switchTab('entries')">
+                                <div class="q-tab__content">
+                                    <span class="q-tab__label">Entries</span>
+                                    <span class="q-badge bg-grey-7 q-badge--rounded" style="margin-left:6px;" id="entryBadge">6</span>
+                                </div>
+                                <div class="q-tab__indicator"></div>
+                            </div>
+                            <div class="q-tab q-tab--inactive" role="tab" aria-selected="false" onclick="switchTab('results')">
+                                <div class="q-tab__content">
+                                    <span class="q-tab__label">Results</span>
+                                    <span class="q-badge bg-grey-7 q-badge--rounded" style="margin-left:6px;" id="resultBadge">0</span>
+                                </div>
+                                <div class="q-tab__indicator"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- TAB PANELS -->
+                    <div class="q-tab-panels q-tab-panels--dark shadow-1 rounded-borders flex-1" style="min-height:200px;">
+                        <!-- Entries Panel -->
+                        <div class="q-panel q-tab-panel" id="panelEntries">
+                            <div class="editor-buttons">
+                                <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps q-btn--dense" onclick="shuffleEntries()" style="font-size:12px; padding:4px 8px;">
+                                    <i class="fas fa-random on-left"></i> Shuffle
+                                </button>
+                                <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps q-btn--dense" onclick="sortEntries()" style="font-size:12px; padding:4px 8px;">
+                                    <i class="fas fa-sort-alpha-up on-left"></i> Sort
+                                </button>
+                                <div style="position:relative; display:inline-block;">
+                                    <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps q-btn--dense q-btn-dropdown q-btn-dropdown--simple" onclick="alert('Demo feature')" style="font-size:12px; padding:4px 8px;">
+                                        <i class="fas fa-image on-left"></i> Add image
+                                        <i class="fas fa-caret-down" style="margin-left:4px; font-size:11px;"></i>
+                                    </button>
+                                </div>
+                                <input type="file" accept="image/*" multiple class="hidden-file" id="fileInput1">
+                                <input type="file" accept="image/*" class="hidden-file" id="fileInput2">
+                                <input type="file" accept="image/*" class="hidden-file" id="fileInput3">
+
+                                <label class="q-checkbox q-checkbox--dark" style="font-size:12px;">
+                                    <input type="checkbox" id="advanced-mode">
+                                    <span class="q-checkbox__inner q-checkbox__inner--falsy">
+                                        <svg class="q-checkbox__truthy" viewBox="0 0 24 24">
+                                            <path d="M1.73,12.91 8.1,19.28 22.79,4.59"></path>
+                                        </svg>
+                                    </span>
+                                    <span class="q-checkbox__label">Advanced</span>
+                                </label>
+                            </div>
+
+                            <div class="basic-editor" id="names-editor" contenteditable="true" role="textbox" spellcheck="false">
+                                <div>Ali</div>
+                                <div>Beatriz</div>
+                                <div>Charles</div>
+                                <div>Diya</div>
+                                <div>Eric</div>
+                                <div>Fatima</div>
+                            </div>
+
+                            <div style="position:relative;">
+                                <div class="q-btn-group q-btn-group--unelevated">
+                                    <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps" onclick="alert('Demo feature')" style="padding:8px;">
+                                        <i class="fas fa-plus on-left"></i> Add wheel
+                                    </button>
+                                    <button class="q-btn q-btn--unelevated bg-primary text-white q-btn-dropdown__arrow-container" style="padding:8px;">
+                                        <i class="fas fa-caret-down q-btn-dropdown__arrow"></i>
+                                    </button>
+                                </div>
+                                <span class="beta-badge">Beta</span>
+                            </div>
+                        </div>
+
+                        <!-- Results Panel -->
+                        <div class="q-panel q-tab-panel" id="panelResults" style="display:none;">
+                            <div class="editor-buttons">
+                                <button class="q-btn q-btn--unelevated" style="background:#333; color:#e0e0e0; font-size:12px; padding:4px 8px;" onclick="alert('Demo feature')">
+                                    <i class="fas fa-sort-alpha-up on-left"></i> Sort
+                                </button>
+                                <button class="q-btn q-btn--unelevated" style="background:#333; color:#e0e0e0; font-size:12px; padding:4px 8px;" onclick="clearResults()">
+                                    <i class="fas fa-times on-left"></i> Clear
+                                </button>
+                                <button class="q-btn q-btn--unelevated" style="background:#333; color:#e0e0e0; font-size:12px; padding:4px 8px;" onclick="alert('Demo feature')">
+                                    <i class="fas fa-file-arrow-down on-left"></i> Export
+                                </button>
+                            </div>
+                            <div id="results-list" class="basic-editor" style="min-height:150px; color:#888; display:flex; align-items:center; justify-content:center; font-size:16px; flex-direction:column; gap:8px;">
+                                <span>No results yet</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Footer -->
+                    <div class="panel-footer">
+                        <div class="version-info">
+                            <span>Version 416</span>
+                            <a class="new-badge" href="#">New!</a>
+                        </div>
+                        <a href="#">Changelog</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile overlay -->
+            <div class="panel-overlay" id="panelOverlay"></div>
+        </div>
+    </div>
+
+    <!-- ===== WINNER MODAL ===== -->
+    <div id="winnerModal" class="winner-modal-overlay">
+        <div class="winner-modal-box">
+            <div class="winner-modal-header" id="winnerModalHeader">We have a winner!</div>
+            <div class="winner-modal-body">
+                <div class="winner-text" id="winnerText"></div>
+            </div>
+            <div class="winner-modal-footer">
+                <button class="close-btn" onclick="closeWinnerModal()">Close</button>
+                <button class="remove-btn" onclick="removeWinner()">Remove</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== CONFITTI CANVAS ===== -->
+    <canvas id="confetti-canvas" class="confetti-canvas"></canvas>
+
+    <!-- ===== CUSTOMIZE MODAL ===== -->
+    <div id="customize-modal" class="fixed inset-0 modal-overlay flex items-center justify-center hidden">
+        <div class="bg-[#202124] rounded-xl w-full max-w-[680px] h-[85vh] flex flex-col shadow-2xl border border-[#3c4043] modal-content overflow-hidden">
+            <div class="flex justify-between items-center p-4 border-b border-[#3c4043] bg-[#1e1f21] shrink-0">
+                <h3 class="text-lg font-bold text-white"><i class="fas fa-palette mr-2 text-[#8ab4f8]"></i> Customize Wheel</h3>
+                <button onclick="closeCustomizeModal()" class="text-gray-400 hover:text-white transition"><i class="fas fa-times text-xl"></i></button>
+            </div>
+            <div class="flex border-b border-[#3c4043] px-4 bg-[#161719] shrink-0 text-sm">
+                <div id="cust-tab-during" class="py-3 px-4 cursor-pointer font-semibold border-b-2 text-[#8ab4f8] border-[#3369e8]" onclick="switchCustomizeTab('during')">During spin</div>
+                <div id="cust-tab-after" class="py-3 px-4 cursor-pointer font-semibold border-b-2 text-gray-400 border-transparent hover:text-white" onclick="switchCustomizeTab('after')">After spin</div>
+                <div id="cust-tab-appearance" class="py-3 px-4 cursor-pointer font-semibold border-b-2 text-gray-400 border-transparent hover:text-white" onclick="switchCustomizeTab('appearance')">Appearance</div>
+            </div>
+            <div class="flex-1 p-6 overflow-y-auto text-sm text-gray-300 flex flex-col gap-6">
+                <!-- DURING -->
+                <div id="cust-panel-during" class="space-y-6">
+                    <div>
+                        <label class="block text-white font-medium mb-2">Sound</label>
+                        <div class="flex items-center gap-3">
+                            <select id="config-sound-select" class="flex-1 bg-[#121212] border border-[#3c4043] rounded p-2 text-white outline-none">
+                                <option value="tick">Ticking sound</option>
+                                <option value="chime">Chime melody</option>
+                                <option value="synth">Synth pop</option>
+                                <option value="none">No Sound</option>
+                            </select>
+                            <button onclick="previewAudio()" class="w-10 h-10 bg-[#2d2e30] border border-[#3c4043] rounded-full flex items-center justify-center text-green-500 hover:bg-[#3c4043] transition"><i class="fas fa-play text-xs"></i></button>
+                            <button onclick="stopPreviewAudio()" class="w-10 h-10 bg-[#2d2e30] border border-[#3c4043] rounded-full flex items-center justify-center text-red-500 hover:bg-[#3c4043] transition"><i class="fas fa-stop text-xs"></i></button>
+                        </div>
+                    </div>
+                    <div>
+                        <div class="flex justify-between items-center mb-1"><span class="text-white font-medium">Volume</span><span id="volume-label-val" class="text-xs text-gray-400">50%</span></div>
+                        <input type="range" min="0" max="100" value="50" class="custom-range" id="config-volume-slider" oninput="updateVolumeLabel(this.value)">
+                        <div class="slider-ticks text-[10px]"><span>0%</span><span>25%</span><span>50%</span><span>75%</span><span>100%</span></div>
+                    </div>
+                    <div class="flex flex-wrap gap-x-6 gap-y-3 pt-2">
+                        <div class="flex items-center gap-2"><input type="checkbox" id="config-display-duplicates" class="config-checkbox" checked><label for="config-display-duplicates" class="cursor-pointer select-none text-white/90">Display duplicates</label></div>
+                        <div class="flex items-center gap-2"><input type="checkbox" id="config-show-title" class="config-checkbox" checked><label for="config-show-title" class="cursor-pointer select-none text-white/90">Show title</label></div>
+                    </div>
+                    <div class="pt-2">
+                        <div class="flex justify-between items-center mb-1"><span class="text-white font-medium">Spin time (seconds)</span><span id="spintime-label-val" class="text-xs text-gray-400">10s</span></div>
+                        <input type="range" min="1" max="60" value="10" class="custom-range" id="config-spintime-slider" oninput="updateSpinTimeLabel(this.value)">
+                        <div class="slider-ticks text-[10px]"><span>1</span><span>10</span><span>20</span><span>30</span><span>40</span><span>50</span><span>60</span></div>
+                    </div>
+                    <div class="pt-2">
+                        <div class="flex justify-between items-center mb-1"><span class="text-white font-medium">Spin speed</span><span id="spinspeed-label-val" class="text-xs text-gray-400">Normal</span></div>
+                        <input type="range" min="1" max="5" value="3" class="custom-range" id="config-spinspeed-slider" oninput="updateSpinSpeedLabel(this.value)">
+                        <div class="slider-ticks text-[10px]"><span>Slowest</span><span>Slow</span><span>Normal</span><span>Fast</span><span>Fastest</span></div>
+                    </div>
+                    <div class="pt-2">
+                        <div class="flex justify-between items-center mb-1"><span class="text-white font-medium">Max number of names visible on the wheel</span><span id="maxnames-label-val" class="text-xs text-gray-400">100</span></div>
+                        <input type="range" min="10" max="500" value="100" step="5" class="custom-range" id="config-maxnames-slider" oninput="updateMaxNamesLabel(this.value)">
+                        <div class="slider-ticks text-[10px]"><span>10</span><span>100</span><span>200</span><span>300</span><span>400</span><span>500</span></div>
+                    </div>
+                </div>
+                <!-- AFTER -->
+                <div id="cust-panel-after" class="space-y-6 hidden">
+                    <div class="bg-[#121212] p-4 rounded-lg border border-[#3c4043]"><div class="flex items-center justify-between"><div><span class="block text-white font-semibold">Animate winner name</span><span class="text-xs text-gray-500">Enable popping animation once the rotation has concluded.</span></div><input type="checkbox" id="config-animate-winner" class="config-checkbox" checked></div></div>
+                    <div class="bg-[#121212] p-4 rounded-lg border border-[#3c4043]"><div class="flex items-center justify-between"><div><span class="block text-white font-semibold">Trigger Confetti</span><span class="text-xs text-gray-500">Launches colorful explosions behind the winning dialog.</span></div><input type="checkbox" id="config-trigger-confetti" class="config-checkbox" checked></div></div>
+                    <div><label class="block text-white font-medium mb-2">Winning sound</label><select id="config-winner-sound" class="w-full bg-[#121212] border border-[#3c4043] rounded p-2 text-white outline-none"><option value="fanfare">Fanfare celebration</option><option value="applause">Applause</option><option value="none">Silence</option></select></div>
+                </div>
+                <!-- APPEARANCE -->
+                <div id="cust-panel-appearance" class="space-y-6 hidden">
+                    <div><label class="block text-white font-medium mb-2">Wheel Color Palette Theme</label><select id="config-color-theme" class="w-full bg-[#121212] border border-[#3c4043] rounded p-2 text-white outline-none" onchange="changeColorTheme(this.value)"><option value="classic">Classic Google (Red, Blue, Yellow, Green, Purple, Orange)</option><option value="neon">Cyber Neon Style</option><option value="pastel">Soft Pastels</option><option value="monochrome">Dark Slate & Silver</option></select></div>
+                    <div class="bg-[#121212] p-4 rounded-lg border border-[#3c4043]"><div class="flex items-center justify-between"><div><span class="block text-white font-semibold">Draw concentric rings</span><span class="text-xs text-gray-500">Gives the wheel an enhanced layered outline.</span></div><input type="checkbox" id="config-draw-rings" class="config-checkbox" checked></div></div>
+                    <div><label class="block text-white font-medium mb-2">Custom Banner Overlay Text</label><input type="text" id="config-overlay-text" value="Click to spin" class="w-full bg-[#121212] border border-[#3c4043] rounded p-2 text-white outline-none" oninput="updateOverlayText(this.value)"></div>
+                </div>
+            </div>
+            <div class="p-4 border-t border-[#3c4043] flex justify-end gap-3 bg-[#121212] rounded-b-xl shrink-0">
+                <button onclick="closeCustomizeModal()" class="px-4 py-2 text-gray-300 hover:text-white transition text-sm">Cancel</button>
+                <button onclick="saveAndApplyCustomizations()" class="px-6 py-2 bg-[#3369e8] hover:bg-[#3b76e2] text-white font-bold rounded shadow-md transition text-sm">OK</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ============================================================
+        // TOPBAR & PANEL CONTROLS
+        // ============================================================
+        let panelCollapsed = false;
+        const panel = document.getElementById('rightPanel');
+        const panelWrapper = document.getElementById('panelWrapper');
+        const toggleBtn = document.getElementById('panelToggleBtn');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        function togglePanel() {
+            panelCollapsed = !panelCollapsed;
+            panel.classList.toggle('right-panel--collapsed', panelCollapsed);
+            panelWrapper.classList.toggle('right-panel-wrapper--collapsed', panelCollapsed);
+            toggleBtn.classList.toggle('panel-toggle-btn--collapsed', panelCollapsed);
+            toggleIcon.className = panelCollapsed ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+            document.getElementById('mainContent').classList.toggle('main-content--full', panelCollapsed);
+            setTimeout(handleCanvasResize, 310);
+        }
+
+        // Mobile panel toggle
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const panelOverlay = document.getElementById('panelOverlay');
+
+        function openMobilePanel() {
+            panel.classList.add('right-panel--mobile-open');
+            panelOverlay.classList.add('panel-overlay--open');
+            document.body.style.overflow = 'hidden';
+        }
+        function closeMobilePanel() {
+            panel.classList.remove('right-panel--mobile-open');
+            panelOverlay.classList.remove('panel-overlay--open');
+            document.body.style.overflow = '';
+        }
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (panel.classList.contains('right-panel--mobile-open')) closeMobilePanel();
+            else openMobilePanel();
+        });
+        panelOverlay.addEventListener('click', closeMobilePanel);
+
+        // Tab switching
+        function switchTab(tab) {
+            const entriesTab = document.querySelector('.q-tab:nth-child(1)');
+            const resultsTab = document.querySelector('.q-tab:nth-child(2)');
+            const entriesPanel = document.getElementById('panelEntries');
+            const resultsPanel = document.getElementById('panelResults');
+            if (tab === 'entries') {
+                entriesTab.classList.add('q-tab--active');
+                entriesTab.classList.remove('q-tab--inactive');
+                resultsTab.classList.add('q-tab--inactive');
+                resultsTab.classList.remove('q-tab--active');
+                entriesPanel.style.display = 'flex';
+                resultsPanel.style.display = 'none';
+            } else {
+                resultsTab.classList.add('q-tab--active');
+                resultsTab.classList.remove('q-tab--inactive');
+                entriesTab.classList.add('q-tab--inactive');
+                entriesTab.classList.remove('q-tab--active');
+                resultsPanel.style.display = 'flex';
+                entriesPanel.style.display = 'none';
+            }
+        }
+
+        // Fullscreen
+        let isFullscreen = false;
+        const header = document.getElementById('mainHeader');
+        const fsBtn = document.getElementById('fullscreenBtn');
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => { isFullscreen = true; updateFullscreenUI(); }).catch(() => {});
+            } else {
+                document.exitFullscreen().then(() => { isFullscreen = false; updateFullscreenUI(); }).catch(() => {});
+            }
+        }
+        function updateFullscreenUI() {
+            if (isFullscreen) {
+                header.classList.add('q-header--fullscreen');
+                fsBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                if (!panelCollapsed) togglePanel();
+            } else {
+                header.classList.remove('q-header--fullscreen');
+                fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+        document.addEventListener('fullscreenchange', () => {
+            isFullscreen = !!document.fullscreenElement;
+            updateFullscreenUI();
+        });
+
+        // More menu
+        let moreMenuOpen = false;
+        function toggleMoreMenu() {
+            const menu = document.getElementById('moreMenu');
+            moreMenuOpen = !moreMenuOpen;
+            menu.style.display = moreMenuOpen ? 'block' : 'none';
+        }
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('moreMenu');
+            const btn = e.target.closest('.q-btn');
+            if (menu && !menu.contains(e.target) && !btn?.querySelector('.fa-ellipsis-v')) {
+                menu.style.display = 'none';
+                moreMenuOpen = false;
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') { closeMobilePanel(); if (moreMenuOpen) { document.getElementById('moreMenu').style.display = 'none'; moreMenuOpen = false; } }
+        });
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 900 && panel.classList.contains('right-panel--mobile-open')) closeMobilePanel();
+        });
+
+        // ============================================================
+        // SOUND SYSTEM (from WheelConfigUtil)
+        // ============================================================
+        // Tick sound using the file from the original code 
+        const TICK_SOUND_URL = "{% static 'sounds/Tick.mp3' %}";
+        let tickAudio = null;
+        let tickSoundEnabled = true;
+        let tickSoundVolume = 100;
+
+        function initTickSound() {
+            try {
+                // Check if the URL is valid and not empty
+                if (!TICK_SOUND_URL || TICK_SOUND_URL === '' || TICK_SOUND_URL === '{% static 'sounds/Tick-DeepFrozenApps-397275646.mp3' %}') {
+                    console.warn('Tick sound URL is empty or invalid. Using oscillator fallback.');
+                    tickAudio = null;
+                    return;
+                }
+                
+                // Check if the file exists by trying to fetch it
+                fetch(TICK_SOUND_URL, { method: 'HEAD' })
+                    .then(response => {
+                        if (response.ok) {
+                            // File exists, load it
+                            tickAudio = new Audio(TICK_SOUND_URL);
+                            tickAudio.volume = tickSoundVolume / 100;
+                            tickAudio.load();
+                            console.log('Tick sound loaded successfully');
+                        } else {
+                            console.warn('Tick sound file not found (status: ' + response.status + '). Using oscillator fallback.');
+                            tickAudio = null;
+                        }
+                    })
+                    .catch(() => {
+                        console.warn('Could not fetch tick sound. Using oscillator fallback.');
+                        tickAudio = null;
+                    });
+            } catch (e) {
+                console.warn('Could not load tick sound:', e);
+                tickAudio = null;
+            }
+        }
+
+        function playTickSound() {
+            if (!tickSoundEnabled) return;
+            if (configState.sound === 'none') return;
+            
+            try {
+                if (tickAudio) {
+                    // Clone the audio to allow overlapping ticks
+                    const sound = tickAudio.cloneNode();
+                    sound.volume = tickSoundVolume / 100;
+                    sound.play().catch(() => {});
+                } else {
+                    // Fallback: Web Audio oscillator
+                    const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+                    oscillator.type = 'sine';
+                    oscillator.frequency.value = 600 + Math.random() * 400;
+                    const vol = tickSoundVolume / 100;
+                    gainNode.gain.setValueAtTime(0.06 * vol, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.06);
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.06);
+                }
+            } catch (e) {
+                // Silently fail for audio
+            }
+        }
+
+        function setTickSoundVolume(volume) {
+            tickSoundVolume = volume;
+            if (tickAudio) {
+                tickAudio.volume = volume / 100;
+            }
+        }
+
+        // Winner sounds
+        const dingSound = new Audio('https://wheelofnames.com/sounds/ding.mp3');
+        const applauseSound = new Audio('https://wheelofnames.com/sounds/SMALL_CROWD_APPLAUSE-Yannick_Lemieux-1268806408.mp3');
+
+        // ============================================================
+        // CONFITTI SYSTEM (from ConfettiLauncher)
+        // ============================================================
+        let confettiInterval = null;
+
+        function launchContinuousConfetti(colors) {
+            // Stop any existing confetti
+            if (confettiInterval) {
+                clearInterval(confettiInterval);
+                confettiInterval = null;
+            }
+            
+            const endTime = Date.now() + 5 * 1000;
+            const defaultColors = ['#3369E8', '#D50F25', '#EEB211', '#009925'];
+            const useColors = colors || defaultColors;
+            
+            // Launch initial burst
+            confetti({
+                startVelocity: 30,
+                particleCount: 150,
+                spread: 360,
+                ticks: 60,
+                origin: { x: 0.5, y: 0.3 },
+                colors: useColors,
+                zIndex: 1000
+            });
+            
+            // Continuous bursts
+            confettiInterval = setInterval(() => {
+                if (Date.now() > endTime) {
+                    clearInterval(confettiInterval);
+                    confettiInterval = null;
+                    return;
+                }
+                confetti({
+                    startVelocity: 25,
+                    particleCount: 80,
+                    spread: 360,
+                    ticks: 50,
+                    origin: { x: Math.random(), y: Math.random() - 0.1 },
+                    colors: useColors,
+                    zIndex: 1000
+                });
+            }, 250);
+        }
+
+        function stopConfetti() {
+            if (confettiInterval) {
+                clearInterval(confettiInterval);
+                confettiInterval = null;
+            }
+        }
+
+        // ============================================================
+        // WINNER MODAL LOGIC
+        // ============================================================
+        let lastWinnerName = "";
+
+        function getWinnerColor(winnerName) {
+            const paletteColors = colorPalettes[configState.colorTheme] || colorPalettes.classic;
+            const index = renderSlicesList.indexOf(winnerName);
+            if (index === -1) return '#d50f25';
+            return ly({ colorSettings: paletteColors, entries: wheelEntriesObj }, index);
+        }
+
+        function showWinnerModal(winnerName) {
+            const modal = document.getElementById('winnerModal');
+            const header = document.getElementById('winnerModalHeader');
+            const winnerColor = getWinnerColor(winnerName);
+            
+            // Set header background color to match the winner's segment
+            header.style.backgroundColor = winnerColor;
+            document.getElementById('winnerText').innerText = winnerName;
+            
+            // Play sounds
+            dingSound.currentTime = 0;
+            applauseSound.currentTime = 0;
+            dingSound.play();
+            setTimeout(() => applauseSound.play(), 150);
+
+            // Show modal with animation
+            modal.classList.add('active');
+
+            // Launch confetti behind the modal
+            const wheelColors = ['#3369E8', '#D50F25', '#EEB211', '#009925'];
+            launchContinuousConfetti(wheelColors);
+        }
+
+        function closeWinnerModal() {
+            const modal = document.getElementById('winnerModal');
+            modal.classList.remove('active');
+            stopConfetti();
+            applauseSound.pause();
+            applauseSound.currentTime = 0;
+        }
+
+        function removeWinner() {
+            const matchIndex = rawEntriesList.indexOf(lastWinnerName);
+            if (matchIndex > -1) { 
+                rawEntriesList.splice(matchIndex, 1); 
+                textareaEditor.innerText = rawEntriesList.join('\n'); 
+                parseTextInput(); 
+            }
+            closeWinnerModal();
+        }
+
+        // ============================================================
+        // WHEEL ENGINE
+        // ============================================================
+        const Gy = 700;
+        function Jy(e) { return Math.min(e.canvas.width, e.canvas.height) / Gy; }
+        function kv(e) { let t = document.createElement('canvas'); t.width = e.canvas.width; t.height = e.canvas.height; return t; }
+        function qy(e) { let t = e.getContext('2d'); if (!t) throw Error('Could not get canvas context'); return t; }
+        function adjustBrightness(e, t) {
+            let n = e.replace('#', '');
+            let r = parseInt(n.substring(0, 2), 16), i = parseInt(n.substring(2, 4), 16), a = parseInt(n.substring(4, 6), 16);
+            let o = Math.max(0, Math.min(255, Math.round(r + 255 * t)));
+            let s = Math.max(0, Math.min(255, Math.round(i + 255 * t)));
+            let c = Math.max(0, Math.min(255, Math.round(a + 255 * t)));
+            let l = function(e) { return e.toString(16).padStart(2, '0'); };
+            return '#' + l(o) + l(s) + l(c);
+        }
+        function Ve(e, t, n, r, i) { return (t ** 2 - (i / 2) ** 2) ** .5 - Math.max(i * Math.cos(e) / (2 * Math.sin(e)), n) >= r; }
+        function ly(e, t) {
+            let n = e.colorSettings || ['#CCCCCC'];
+            let numEntries = e.entries ? e.entries.length : 0;
+            if (numEntries > 1 && t === numEntries - 1 && t % n.length === 0 && n.length > 2) return n[1];
+            return n[t % n.length];
+        }
+        function gv(e) { let t = 'Quicksand, sans-serif'; let n = (e || '').trim(); return n ? n + ', ' + t : t; }
+        function _v(e, t, n, r, i, a, o) {
+            let s = gv(o);
+            let low = 3, high = 200, bestSize = 10;
+            for (let attempt = 0; attempt < 50; attempt++) {
+                let mid = Math.round((low + high) / 2);
+                let fontString = mid + 'px ' + s;
+                e.font = fontString;
+                let metrics = e.measureText(t || '');
+                let textWidth = metrics.width;
+                if (Ve(a / 2, r, i, textWidth, mid)) { bestSize = mid; low = mid + 1; } else { high = mid - 1; }
+                if (high - low < 2) break;
+            }
+            return Math.max(8, Math.min(80, bestSize));
+        }
+        function qv(e) {
+            let t = e.context;
+            t.save();
+            if (e.wheelConfig.type === 'image') { /* skip */ } else if (e.wheelConfig.type === 'color') {
+                t.beginPath();
+                t.moveTo(0, 0);
+                t.arc(0, 0, e.wheelRadius, -e.radians / 2, e.radians / 2);
+                t.lineTo(0, 0);
+                t.fillStyle = e.color || '#CCCCCC';
+                t.fill();
+                if (e.entry.text) {
+                    let n = e.context;
+                    let r = e.entry.text || '';
+                    let fontString = _v(n, r, e.displayEntries.map(function(e) { return e.text || ''; }), e.wheelRadius, e.hubRadius, e.radians, e.wheelConfig.font);
+                    n.font = fontString;
+                    n.lineJoin = 'round';
+                    n.textBaseline = 'middle';
+                    n.textAlign = 'end';
+                    n.fillStyle = 'white';
+                    n.fillText(' ' + r + ' ', e.wheelRadius, 0);
+                }
+                if (e.wheelConfig.drawOutlines) {
+                    t.beginPath();
+                    t.moveTo(0, 0);
+                    t.arc(0, 0, e.wheelRadius, -e.radians / 2, e.radians / 2);
+                    t.lineTo(0, 0);
+                    t.lineWidth = 1;
+                    t.strokeStyle = '#333333';
+                    t.stroke();
+                }
+            }
+            t.restore();
+        }
+
+        class Ky {
+            constructor() {
+                this.imageCache = new Map();
+                this.entries = [];
+                this.imageDataCache = {};
+                this.wheelImage = null;
+                this.pointerImages = null;
+                this.coverPlateImage = null;
+                this.wheelShadowImage = null;
+                this.wheelFaceShadowImage = null;
+                this.watermarkImage = null;
+            }
+            draw(e, t, n, r, i, a, o) {
+                let s = e.canvas.width * .44;
+                let c = this.getHubRadius(i, s);
+                this.drawBackground(e);
+                if (i.drawShadow) this.drawWheelShadow(e, s);
+                this.drawCoverImage(e, i, t, s);
+                this.drawWheel(e, i, t, s, c, r, n);
+                this.drawWheelBevel(e, s);
+                this.drawBevelShading(e, s);
+                this.drawWheelFaceShadow(e, s);
+                this.drawLightFromTop(e, s);
+                if (o) this.drawPointer(e, i, s, o);
+                this.drawCenterImage(e, i, t, c);
+                try { this.drawCoverPlate(e, s, c, r, n); } catch (ex) {}
+                if (a) this.drawWatermark(e, a, i);
+            }
+            getHubRadius(e, t) {
+                if (e.type === 'image') return 0;
+                let sizes = { XS: .01, S: .2, M: .3, L: .4, XL: .5, XXL: .6 };
+                let n = sizes[e.hubSize] || .2;
+                return Math.round(n * t);
+            }
+            refresh() { this.wheelImage = null; this.pointerImages = null; this.coverPlateImage = null; this.wheelShadowImage = null; this.wheelFaceShadowImage = null; this.watermarkImage = null; }
+            drawBackground(e) { e.clearRect(0, 0, e.canvas.width, e.canvas.height); }
+            drawWheelShadow(e, t) {
+                if (!this.wheelShadowImage) { this.wheelShadowImage = kv(e); this.drawWheelShadowNoCache(qy(this.wheelShadowImage), t); }
+                e.drawImage(this.wheelShadowImage, 0, 0);
+            }
+            drawWheelShadowNoCache(e, t) {
+                let n = e.canvas.width / 2, r = e.canvas.height / 2;
+                let i = e.createRadialGradient(n, r, t, n, r + 4, t + 8);
+                i.addColorStop(0, '#00000034'); i.addColorStop(1, '#00000000');
+                e.fillStyle = i; e.fillRect(0, 0, e.canvas.width, e.canvas.height);
+            }
+            drawWheel(e, t, n, r, i, a, o) {
+                if (!this.wheelImage) {
+                    this.wheelImage = kv(e);
+                    this.entries = o.slice(0);
+                    this.drawWheelNoCache({ context: qy(this.wheelImage), wheelConfig: t, wheelRadius: r, hubRadius: i, allEntries: a, displayEntries: o });
+                }
+                let s = e.canvas.width, c = e.canvas.height;
+                e.save(); e.translate(s / 2, c / 2); e.rotate(n); e.translate(-s / 2, -c / 2);
+                e.drawImage(this.wheelImage, 0, 0);
+                e.restore();
+            }
+            drawWheelNoCache(e) {
+                this.drawSlices(e);
+                try { this.drawTexture(e.context, e.wheelRadius); } catch (ex) {}
+                this.drawCenterCircle(e.context, e.wheelConfig, e.hubRadius);
+            }
+            drawCoverImage(e, t, n, r) {}
+            drawSlices(e) {
+                let t = e.context;
+                t.save();
+                t.translate(t.canvas.width / 2, t.canvas.height / 2);
+                if (e.wheelConfig.isAdvanced) this.drawAdvancedSlices(e);
+                else this.drawBasicSlices(e);
+                t.restore();
+            }
+            drawBasicSlices(e) {
+                let t = 2 * Math.PI / e.displayEntries.length;
+                for (let n = 0; n < e.displayEntries.length; n++) {
+                    let r = e.displayEntries[n];
+                    let i = ly(e.wheelConfig, n);
+                    let sliceData = { context: e.context, entry: r, color: i, radians: t, image: this.getImageFromData(r.image), wheelConfig: e.wheelConfig, wheelRadius: e.wheelRadius, hubRadius: e.hubRadius, displayEntries: e.displayEntries };
+                    qv(sliceData);
+                    e.context.rotate(-t);
+                }
+            }
+            drawAdvancedSlices(e) { this.drawBasicSlices(e); }
+            drawCenterCircle(e, t, n) {
+                if (t.type === 'image') return;
+                e.save(); e.translate(e.canvas.width / 2, e.canvas.height / 2);
+                e.fillStyle = 'white';
+                e.beginPath(); e.arc(0, 0, n, 0, Math.PI * 2); e.fill();
+                if (t.drawOutlines) { e.lineWidth = 2; e.strokeStyle = '#333333'; e.stroke(); }
+                e.restore();
+            }
+            drawPointer(e, t, n, r) {
+                if (e.canvas.width < 200) return;
+                if (!this.pointerImages) this.pointerImages = {};
+                if (!this.pointerImages[r]) { this.pointerImages[r] = kv(e); this.drawPointerNoCache(qy(this.pointerImages[r]), t, n, r); }
+                e.drawImage(this.pointerImages[r], 0, 0);
+            }
+            drawPointerNoCache(e, t, n, r) {
+                e.save(); e.translate(e.canvas.width / 2 + n, e.canvas.height / 2);
+                let i = Jy(e);
+                let a = -15 * i, o = 20 * i, s = 25 * i, c = -20 * i, l = 20 * i;
+                if (t.drawShadow) { e.shadowColor = '#0008'; e.shadowOffsetY = 4 * i; e.shadowBlur = 10 * i; }
+                let u = { l1: adjustBrightness(r, .1), l2: adjustBrightness(r, .2), l3: adjustBrightness(r, .3), d1: adjustBrightness(r, -.1), d2: adjustBrightness(r, -.2), d3: adjustBrightness(r, -.3) };
+                let d = e.createLinearGradient(0, c, 0, l);
+                d.addColorStop(0, u.l2); d.addColorStop(1, u.d2);
+                e.fillStyle = d; e.beginPath(); e.moveTo(a, 0); e.lineTo(s, c); e.lineTo(o, 0); e.lineTo(s, l); e.closePath(); e.fill();
+                e.shadowColor = 'transparent';
+                e.lineWidth = 3 * i;
+                let f = e.createLinearGradient(0, c, 0, l);
+                f.addColorStop(0, u.l3); f.addColorStop(.49, u.l2); f.addColorStop(.51, u.d2); f.addColorStop(1, u.d3);
+                e.strokeStyle = f; e.beginPath(); e.moveTo(s, l); e.lineTo(a, 0); e.lineTo(s, c); e.stroke();
+                e.lineWidth = 2 * i;
+                let p = e.createLinearGradient(0, c, 0, l);
+                p.addColorStop(0, u.d2); p.addColorStop(.49, u.d1); p.addColorStop(.51, u.l1); p.addColorStop(1, u.l2);
+                e.strokeStyle = p; e.beginPath(); e.moveTo(s, c); e.lineTo(o, 0); e.lineTo(s, l); e.stroke();
+                e.restore();
+            }
+            drawTexture(e, t) {}
+            drawWheelFaceShadow(e, t) {
+                if (!this.wheelFaceShadowImage) { this.wheelFaceShadowImage = kv(e); this.drawWheelFaceShadowNoCache(qy(this.wheelFaceShadowImage), t); }
+                e.drawImage(this.wheelFaceShadowImage, 0, 0);
+            }
+            drawWheelFaceShadowNoCache(e, t) {
+                e.save(); e.translate(e.canvas.width / 2, e.canvas.height / 2);
+                let n = e.createRadialGradient(-t / 2, -t, t, -t / 2, -t, t * 2);
+                n.addColorStop(.75, '#00000000'); n.addColorStop(1, '#00000028');
+                e.fillStyle = n; e.beginPath(); e.arc(0, 0, t, 0, Math.PI * 2); e.fill();
+                e.restore();
+            }
+            drawWheelBevel(e, t) {
+                e.save(); e.translate(e.canvas.width / 2, e.canvas.height / 2);
+                let n = e.createRadialGradient(0, 0, t * .99, 0, 0, t);
+                n.addColorStop(0, '#00000000'); n.addColorStop(1, '#00000088');
+                e.fillStyle = n; e.beginPath(); e.arc(0, 0, t, 0, Math.PI * 2); e.fill();
+                e.restore();
+            }
+            drawLightFromTop(e, t) {
+                e.save(); e.translate(e.canvas.width / 2, e.canvas.height / 2);
+                let n = e.createRadialGradient(-t / 2, -t, 0, -t / 2, -t, t);
+                n.addColorStop(0, '#FFFFFF36'); n.addColorStop(1, '#FFFFFF00');
+                e.fillStyle = n; e.beginPath(); e.arc(0, 0, t, 0, Math.PI * 2); e.fill();
+                e.restore();
+            }
+            drawBevelShading(e, t) {
+                e.save(); e.translate(e.canvas.width / 2, e.canvas.height / 2);
+                let n = e.createConicGradient(0, 0, 0);
+                let r = '255 255 255', b = '0 0 0';
+                n.addColorStop(.417, 'rgb(' + r + ' / 0)'); n.addColorStop(.625, 'rgb(' + r + ' / 25%)'); n.addColorStop(.833, 'rgb(' + r + ' / 0)');
+                n.addColorStop(.917, 'rgb(' + b + ' / 0)'); n.addColorStop(.125, 'rgb(' + b + ' / 10%)'); n.addColorStop(.333, 'rgb(' + b + ' / 0)');
+                e.beginPath(); e.arc(0, 0, t - 2, 0, Math.PI * 2); e.lineWidth = 4; e.strokeStyle = n; e.stroke();
+                e.restore();
+            }
+            drawCoverPlate(e, t, n, r, i) {}
+            drawCenterImage(e, t, n, r) {}
+            drawWatermark(e, t, n) {}
+            getImageFromData(e) { if (e) { if (!this.imageDataCache[e]) { let t = new Image(); t.onload = function() { this.clearCachedWheelImage(); }.bind(this); t.setAttribute('crossOrigin', 'anonymous'); t.src = e; this.imageDataCache[e] = t; } return this.imageDataCache[e]; } }
+            clearCachedWheelImage() { this.wheelImage = null; }
+        }
+
+        // --- App state ---
+        let rawEntriesList = [];
+        let renderSlicesList = [];
+        let wheelEntriesObj = [];
+        let currentRotationAngle = 0;
+        let isSpinning = false;
+        let hasSpunOnce = false;
+        let currentPointerColor = "#BBBBBB";
+        let animationStartTimestamp = null;
+        let animationStartAngle = 0;
+        let targetEndingAngle = 0;
+        const TWO_PI = 2 * Math.PI;
+        let wheelPainter = new Ky();
+        let lastTickSegment = -1;
+
+        const configState = {
+            sound: "tick", volume: 50, displayDuplicates: true, spinSpeed: 3, showTitle: true, spinTime: 10,
+            maxNames: 100, animateWinner: true, triggerConfetti: true, winnerSound: "fanfare",
+            colorTheme: "classic", drawRings: true, overlayText: "Click to spin"
+        };
+        const colorPalettes = {
+            classic: ["#d50f25", "#3369e8", "#eeb211", "#009925", "#990099", "#ff9900"],
+            neon: ["#ff007f", "#00f0ff", "#7000ff", "#39ff14", "#ffb703"],
+            pastel: ["#ffb3ba", "#baffc9", "#bae1ff", "#ffffba", "#e8c4ff"],
+            monochrome: ["#1a1d20", "#2d3238", "#495057", "#6c757d", "#adb5bd", "#dee2e6"]
+        };
+
+        const textareaEditor = document.getElementById('names-editor');
+        const entryBadge = document.getElementById('entryBadge');
+        const resultBadge = document.getElementById('resultBadge');
+        const canvasElement = document.getElementById('wheel');
+        const canvasContext = canvasElement.getContext('2d', { alpha: true });
+        const canvasWrapperElement = document.getElementById('canvas-wrapper');
+        const overlayTextElement = document.getElementById('wheel-overlay');
+
+        const initialNamesList = ["1", "2", "3", "4", "5", "6"];
+
+        let socket = null;
+        function connectWebSocket() {
+            const socketScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const socketUrl = `${socketScheme}${window.location.host}/ws/wheel/`;
+            socket = new WebSocket(socketUrl);
+            socket.onopen = () => { syncEntriesToServer(); };
+            socket.onclose = () => { setTimeout(connectWebSocket, 3000); };
+            socket.onmessage = (e) => {
+                const packet = jsonParseSafe(e.data);
+                if (packet && packet.type === "resolve_spin") initiateTargetedPhysicsSpin(packet.winner);
+            };
+        }
+        function syncEntriesToServer() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ type: "sync_entries", entries: rawEntriesList }));
+            }
+        }
+        function jsonParseSafe(str) { try { return JSON.parse(str); } catch(e) { return null; } }
+
+        function parseTextInput() {
+            const rawText = textareaEditor.innerText || '';
+            rawEntriesList = rawText.split('\n').map(name => name.trim()).filter(name => name.length > 0);
+            if (configState.displayDuplicates) renderSlicesList = [...rawEntriesList];
+            else renderSlicesList = rawEntriesList.filter((value, idx, self) => self.indexOf(value) === idx);
+            if (renderSlicesList.length > configState.maxNames) renderSlicesList = renderSlicesList.slice(0, configState.maxNames);
+            wheelEntriesObj = renderSlicesList.map(text => ({ text: text }));
+            entryBadge.textContent = rawEntriesList.length;
+            if (wheelPainter) wheelPainter.refresh();
+            if (renderSlicesList.length === 0) { overlayTextElement.style.opacity = '0'; currentPointerColor = '#BBBBBB'; }
+            else if (!isSpinning) { overlayTextElement.style.opacity = (configState.showTitle && !hasSpunOnce) ? '1' : '0'; updatePointerToMatchTargetAngle(); }
+            if (!isSpinning) drawWheelLayout();
+            syncEntriesToServer();
+        }
+
+        textareaEditor.addEventListener('input', parseTextInput);
+
+        function drawEmptyPlaceholder(radius, centerPoint) {
+            canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            canvasContext.save();
+            canvasContext.translate(centerPoint, centerPoint);
+            canvasContext.beginPath(); canvasContext.arc(0, 0, radius, 0, TWO_PI);
+            canvasContext.fillStyle = '#1e1f22'; canvasContext.fill();
+            canvasContext.lineWidth = 6; canvasContext.strokeStyle = '#2d2e31'; canvasContext.stroke();
+            for (let i = 0; i < 8; i++) { canvasContext.rotate(TWO_PI / 8); canvasContext.beginPath(); canvasContext.moveTo(0, 0); canvasContext.lineTo(radius, 0); canvasContext.strokeStyle = 'rgba(255,255,255,0.03)'; canvasContext.lineWidth = 2; canvasContext.stroke(); }
+            canvasContext.beginPath(); canvasContext.arc(0, 0, radius * 0.16, 0, TWO_PI); canvasContext.fillStyle = '#2d2e31'; canvasContext.fill();
+            canvasContext.restore();
+        }
+
+        function drawWheelLayout() {
+            if (renderSlicesList.length === 0) {
+                const centerPoint = canvasElement.width / 2;
+                const radius = (canvasElement.width / 2) - 10;
+                canvasContext.save();
+                canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+                drawEmptyPlaceholder(radius, centerPoint);
+                canvasContext.restore();
+                return;
+            }
+            const paletteColors = colorPalettes[configState.colorTheme] || colorPalettes.classic;
+            const wheelConfigWrapper = {
+                type: 'color', hubSize: 'S', drawShadow: true, drawOutlines: configState.drawRings,
+                isAdvanced: false, font: 'Quicksand', colorSettings: paletteColors, entries: wheelEntriesObj
+            };
+            canvasContext.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            wheelPainter.draw(canvasContext, currentRotationAngle, wheelEntriesObj, wheelEntriesObj, wheelConfigWrapper, null, currentPointerColor);
+        }
+
+        function getWinningSegmentIndex() {
+            if (renderSlicesList.length === 0) return -1;
+            const sliceAngleWidth = TWO_PI / renderSlicesList.length;
+            let normalizedAngle = ((currentRotationAngle % TWO_PI) + TWO_PI) % TWO_PI;
+            return Math.round(normalizedAngle / sliceAngleWidth) % renderSlicesList.length;
+        }
+
+        function updatePointerToMatchTargetAngle() {
+            const activeIndex = getWinningSegmentIndex();
+            if (activeIndex >= 0) {
+                const palette = colorPalettes[configState.colorTheme] || colorPalettes.classic;
+                currentPointerColor = ly({ colorSettings: palette, entries: wheelEntriesObj }, activeIndex);
+            }
+        }
+
+        function startSpin() {
+            if (isSpinning || renderSlicesList.length <= 1) return;
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({ type: "request_spin", entries: renderSlicesList }));
+            } else {
+                const fallbackWinner = renderSlicesList[Math.floor(Math.random() * renderSlicesList.length)];
+                initiateTargetedPhysicsSpin(fallbackWinner);
+            }
+        }
+
+        function initiateTargetedPhysicsSpin(winningName) {
+            isSpinning = true; hasSpunOnce = true; overlayTextElement.style.opacity = '0';
+            lastTickSegment = -1;
+            let targetSliceIndex = renderSlicesList.indexOf(winningName);
+            if (targetSliceIndex === -1) targetSliceIndex = 0;
+            const sliceCount = renderSlicesList.length;
+            const sliceWidth = TWO_PI / sliceCount;
+            
+            // Random offset within the winning slice for natural look
+            const randomOffset = (Math.random() - 0.5) * sliceWidth * 0.8;
+            const centerAngle = targetSliceIndex * sliceWidth;
+            const finalRestAngle = centerAngle + randomOffset;
+            
+            const speedTurnsMap = { 1: 3, 2: 5, 3: 8, 4: 12, 5: 18 };
+            const fullTurns = speedTurnsMap[configState.spinSpeed] || 8;
+            
+            animationStartAngle = currentRotationAngle % TWO_PI;
+            targetEndingAngle = TWO_PI * fullTurns + finalRestAngle;
+            while (targetEndingAngle <= animationStartAngle) {
+                targetEndingAngle += TWO_PI;
+            }
+            
+            animationStartTimestamp = performance.now();
+            requestAnimationFrame(wheelTargetedSpinLoop);
+            
+            // Initialize tick sound
+            initTickSound();
+            if (tickAudio) {
+                tickAudio.volume = configState.volume / 100;
+            }
+            tickSoundVolume = configState.volume;
+            tickSoundEnabled = configState.sound !== 'none';
+        }
+
+        function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+        let lastSegmentIndex = -1;
+
+        function wheelTargetedSpinLoop(now) {
+            const durationMs = configState.spinTime * 1000;
+            const elapsed = now - animationStartTimestamp;
+            const progress = Math.min(1, elapsed / durationMs);
+            const easedProgress = easeOutCubic(progress);
+            currentRotationAngle = animationStartAngle + (targetEndingAngle - animationStartAngle) * easedProgress;
+            
+            // Play tick sound when crossing segment boundaries
+            const currentSegmentIdx = getWinningSegmentIndex();
+            if (currentSegmentIdx !== lastTickSegment && currentSegmentIdx >= 0 && progress < 1) {
+                playTickSound();
+                lastTickSegment = currentSegmentIdx;
+            }
+            
+            if (currentSegmentIdx !== lastSegmentIndex && currentSegmentIdx >= 0) { 
+                updatePointerToMatchTargetAngle(); 
+                lastSegmentIndex = currentSegmentIdx; 
+            }
+            
+            drawWheelLayout();
+            
+            if (progress < 1) {
+                requestAnimationFrame(wheelTargetedSpinLoop);
+            } else {
+                isSpinning = false;
+                const finalIdx = getWinningSegmentIndex();
+                if (finalIdx >= 0) { 
+                    lastWinnerName = renderSlicesList[finalIdx]; 
+                    setTimeout(() => {
+                        // Show winner with confetti behind modal
+                        showWinnerModal(lastWinnerName);
+                        recordSpinnerResult(lastWinnerName);
+                    }, 400);
+                }
+            }
+        }
+
+        document.addEventListener('keydown', (e) => { if (e.ctrlKey && e.key === 'Enter') { e.preventDefault(); startSpin(); } });
+
+        const custModalOverlay = document.getElementById('customize-modal');
+
+        const resultsListArray = [];
+        function recordSpinnerResult(name) { resultsListArray.push({ name: name, time: new Date().toLocaleTimeString() }); renderResultsUI(); }
+        function clearResults() { resultsListArray.length = 0; renderResultsUI(); }
+        function renderResultsUI() {
+            const listContainer = document.getElementById('results-list');
+            const countLabel = document.getElementById('resultBadge');
+            countLabel.textContent = resultsListArray.length;
+            if (resultsListArray.length === 0) { listContainer.innerHTML = '<span>No results yet</span>'; return; }
+            listContainer.innerHTML = resultsListArray.map((res, i) => `
+                <div class="flex items-center justify-between text-xs p-2 rounded bg-white/5 border border-white/[0.04] w-full">
+                    <span class="font-semibold text-white">${i + 1}. ${res.name}</span>
+                    <span class="text-[10px] text-gray-500">${res.time}</span>
+                </div>
+            `).join('');
+        }
+
+        // --- Customize modal ---
+        function openCustomizeModal() { syncCustomizePanelBindings(); custModalOverlay.classList.remove('hidden'); setTimeout(() => custModalOverlay.classList.add('active'), 10); }
+        function closeCustomizeModal() { stopPreviewAudio(); custModalOverlay.classList.remove('active'); setTimeout(() => custModalOverlay.classList.add('hidden'), 250); }
+        function switchCustomizeTab(tab) {
+            const tabDuring = document.getElementById('cust-tab-during'), tabAfter = document.getElementById('cust-tab-after'), tabAppearance = document.getElementById('cust-tab-appearance');
+            const panelDuring = document.getElementById('cust-panel-during'), panelAfter = document.getElementById('cust-panel-after'), panelAppearance = document.getElementById('cust-panel-appearance');
+            [tabDuring, tabAfter, tabAppearance].forEach(el => { el.classList.remove('text-[#8ab4f8]', 'border-[#3369e8]'); el.classList.add('text-gray-400', 'border-transparent'); });
+            [panelDuring, panelAfter, panelAppearance].forEach(el => el.classList.add('hidden'));
+            if (tab === 'during') { tabDuring.classList.add('text-[#8ab4f8]', 'border-[#3369e8]'); panelDuring.classList.remove('hidden'); }
+            else if (tab === 'after') { tabAfter.classList.add('text-[#8ab4f8]', 'border-[#3369e8]'); panelAfter.classList.remove('hidden'); }
+            else if (tab === 'appearance') { tabAppearance.classList.add('text-[#8ab4f8]', 'border-[#3369e8]'); panelAppearance.classList.remove('hidden'); }
+        }
+        function syncCustomizePanelBindings() {
+            document.getElementById('config-sound-select').value = configState.sound;
+            document.getElementById('config-volume-slider').value = configState.volume;
+            document.getElementById('volume-label-val').textContent = configState.volume + '%';
+            document.getElementById('config-display-duplicates').checked = configState.displayDuplicates;
+            document.getElementById('config-show-title').checked = configState.showTitle;
+            document.getElementById('config-spintime-slider').value = configState.spinTime;
+            document.getElementById('spintime-label-val').textContent = configState.spinTime + 's';
+            document.getElementById('config-spinspeed-slider').value = configState.spinSpeed;
+            updateSpinSpeedLabel(configState.spinSpeed);
+            document.getElementById('config-maxnames-slider').value = configState.maxNames;
+            document.getElementById('maxnames-label-val').textContent = configState.maxNames;
+            document.getElementById('config-animate-winner').checked = configState.animateWinner;
+            document.getElementById('config-trigger-confetti').checked = configState.triggerConfetti;
+            document.getElementById('config-winner-sound').value = configState.winnerSound;
+            document.getElementById('config-color-theme').value = configState.colorTheme;
+            document.getElementById('config-draw-rings').checked = configState.drawRings;
+            document.getElementById('config-overlay-text').value = configState.overlayText;
+        }
+        function updateVolumeLabel(val) { document.getElementById('volume-label-val').textContent = val + '%'; }
+        function updateSpinTimeLabel(val) { document.getElementById('spintime-label-val').textContent = val + 's'; }
+        function updateSpinSpeedLabel(val) { const labels = { 1: "Slowest", 2: "Slow", 3: "Normal", 4: "Fast", 5: "Fastest" }; document.getElementById('spinspeed-label-val').textContent = labels[val] || "Normal"; }
+        function updateMaxNamesLabel(val) { document.getElementById('maxnames-label-val').textContent = val; }
+        function changeColorTheme(val) { configState.colorTheme = val; if (wheelPainter) wheelPainter.refresh(); if (!isSpinning) drawWheelLayout(); }
+        function updateOverlayText(val) { configState.overlayText = val; overlayTextElement.querySelector('div:first-child').textContent = val; }
+        function saveAndApplyCustomizations() {
+            stopPreviewAudio();
+            configState.sound = document.getElementById('config-sound-select').value;
+            configState.volume = parseInt(document.getElementById('config-volume-slider').value);
+            configState.displayDuplicates = document.getElementById('config-display-duplicates').checked;
+            configState.showTitle = document.getElementById('config-show-title').checked;
+            configState.spinTime = parseInt(document.getElementById('config-spintime-slider').value);
+            configState.spinSpeed = parseInt(document.getElementById('config-spinspeed-slider').value);
+            configState.maxNames = parseInt(document.getElementById('config-maxnames-slider').value);
+            configState.animateWinner = document.getElementById('config-animate-winner').checked;
+            configState.triggerConfetti = document.getElementById('config-trigger-confetti').checked;
+            configState.winnerSound = document.getElementById('config-winner-sound').value;
+            configState.colorTheme = document.getElementById('config-color-theme').value;
+            configState.drawRings = document.getElementById('config-draw-rings').checked;
+            configState.overlayText = document.getElementById('config-overlay-text').value;
+            // Update tick sound volume
+            setTickSoundVolume(configState.volume);
+            parseTextInput();
+            closeCustomizeModal();
+        }
+
+        // --- Audio preview ---
+        let audioContextInstance = null, previewOscillator = null;
+        function createAudioCtx() { if (!audioContextInstance) audioContextInstance = new (window.AudioContext || window.webkitAudioContext)(); if (audioContextInstance.state === 'suspended') audioContextInstance.resume(); }
+        function previewAudio() {
+            stopPreviewAudio();
+            createAudioCtx();
+            const selectedSound = document.getElementById('config-sound-select').value;
+            const vol = parseFloat(document.getElementById('config-volume-slider').value) / 100;
+            if (selectedSound === 'none') return;
+            previewOscillator = audioContextInstance.createOscillator();
+            const gain = audioContextInstance.createGain();
+            if (selectedSound === 'tick') { 
+                // Use actual tick sound for preview
+                try {
+                    const sound = new Audio(TICK_SOUND_URL);
+                    sound.volume = vol;
+                    sound.play();
+                    return;
+                } catch(e) {
+                    previewOscillator.type = 'triangle'; 
+                    previewOscillator.frequency.setValueAtTime(450, audioContextInstance.currentTime);
+                }
+            } else if (selectedSound === 'chime') { previewOscillator.type = 'sine'; previewOscillator.frequency.setValueAtTime(1200, audioContextInstance.currentTime); }
+            else if (selectedSound === 'synth') { previewOscillator.type = 'sawtooth'; previewOscillator.frequency.setValueAtTime(440, audioContextInstance.currentTime); }
+            gain.gain.setValueAtTime(0.15 * vol, audioContextInstance.currentTime);
+            previewOscillator.connect(gain);
+            gain.connect(audioContextInstance.destination);
+            previewOscillator.start();
+            setTimeout(stopPreviewAudio, 500);
+        }
+        function stopPreviewAudio() { 
+            if (previewOscillator) { 
+                try { previewOscillator.stop(); } catch(e){} 
+                previewOscillator = null; 
+            }
+        }
+
+        // --- Canvas resize ---
+        function handleCanvasResize() {
+            const containerElement = document.getElementById('wheel-container');
+            const containerBoundingRect = containerElement.getBoundingClientRect();
+            let boundingSquareSize = Math.min(containerBoundingRect.width, containerBoundingRect.height) - 40;
+            if (boundingSquareSize < 220) boundingSquareSize = 220;
+            if (boundingSquareSize > 800) boundingSquareSize = 800;
+            canvasWrapperElement.style.width = `${boundingSquareSize}px`;
+            canvasWrapperElement.style.height = `${boundingSquareSize}px`;
+            canvasElement.width = boundingSquareSize;
+            canvasElement.height = boundingSquareSize;
+            if (wheelPainter) wheelPainter.refresh();
+            if (!isSpinning) drawWheelLayout();
+        }
+
+        // --- Shuffle / Sort ---
+        function shuffleEntries() {
+            if (isSpinning || rawEntriesList.length === 0) return;
+            for (let i = rawEntriesList.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [rawEntriesList[i], rawEntriesList[j]] = [rawEntriesList[j], rawEntriesList[i]]; }
+            textareaEditor.innerText = rawEntriesList.join('\n');
+            parseTextInput();
+        }
+        function sortEntries() {
+            if (isSpinning || rawEntriesList.length === 0) return;
+            rawEntriesList.sort((a, b) => a.localeCompare(b, undefined, { sensitivity: 'base' }));
+            textareaEditor.innerText = rawEntriesList.join('\n');
+            parseTextInput();
+        }
+        function createNewWheel() {
+            if (isSpinning) return;
+            if (confirm("Are you sure you want to create a new wheel? This will clear current names.")) {
+                textareaEditor.innerText = "";
+                hasSpunOnce = false;
+                parseTextInput();
+                clearResults();
+            }
+        }
+
+        // --- Init ---
+        function initApp() {
+            textareaEditor.innerText = initialNamesList.join('\n');
+            parseTextInput();
+            syncCustomizePanelBindings();
+            initTickSound();
+            const resizeObserver = new ResizeObserver(() => handleCanvasResize());
+            resizeObserver.observe(document.getElementById('wheel-container'));
+            handleCanvasResize();
+            connectWebSocket();
+            document.fonts.ready.then(() => { if (!isSpinning) drawWheelLayout(); });
+        }
+
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+
+</body>
+</html>

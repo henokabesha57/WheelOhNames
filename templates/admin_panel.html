@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Wheel of Names - Real-Time Admin Rig Panel</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@300;400;600;700;800&family=Quicksand:wght@500;700&display=swap" rel="stylesheet">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Nunito', sans-serif;
+            background-color: #0d0d0e;
+            color: #e8eaed;
+        }
+        .admin-card {
+            background-color: #1a1b1e;
+            border: 1px solid #2d2f34;
+        }
+        .glowing-active-border {
+            box-shadow: 0 0 15px rgba(59, 130, 246, 0.25);
+            border-color: #3b82f6 !important;
+        }
+        .glowing-winner-border {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
+            border-color: #ef4444 !important;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col">
+
+    <!-- HEADER -->
+    <header class="bg-[#1a1b1e] border-b border-[#2d2f34] h-16 flex items-center justify-between px-6 shrink-0 shadow-lg">
+        <div class="flex items-center gap-3">
+            <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-red-600 to-blue-600 flex items-center justify-center shadow-inner">
+                <i class="fas fa-shield-halved text-white text-sm"></i>
+            </div>
+            <span class="font-bold tracking-wide text-lg text-white font-['Quicksand']">Admin Control Panel</span>
+            <span class="text-xs bg-red-500/10 text-red-400 border border-red-500/20 px-2 py-0.5 rounded font-mono uppercase tracking-wider">Super User Mode</span>
+        </div>
+        <div class="flex items-center gap-4">
+            <div id="socket-status" class="text-xs px-2.5 py-1 rounded bg-amber-500/10 text-amber-500 flex items-center gap-1.5 font-medium border border-amber-500/20">
+                <span class="w-2 h-2 rounded-full bg-amber-500 animate-pulse"></span> Offline
+            </div>
+        </div>
+    </header>
+
+    <!-- CONTENT LAYOUT -->
+    <main class="flex-1 max-w-5xl w-full mx-auto p-4 md:p-8 flex flex-col gap-6">
+        
+        <!-- INTRO & LIVE RIG TARGET SUMMARY -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+            
+            <div class="admin-card p-5 rounded-xl flex items-center gap-4 col-span-2">
+                <div class="w-12 h-12 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-xl shrink-0">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <div>
+                    <h3 class="text-xs font-bold uppercase text-gray-500 tracking-wider">Rigging Status</h3>
+                    <p class="text-sm text-gray-400 mt-1">If a winner is set below, the next spin on the player's wheel is guaranteed to land on that segment. Once spun, the target resets back to random.</p>
+                </div>
+            </div>
+
+            <!-- CURRENT RIGGED TARGET CONTAINER -->
+            <div id="rig-target-card" class="admin-card p-5 rounded-xl border border-[#2d2f34] flex flex-col justify-between transition-all duration-300">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-bold uppercase text-gray-500 tracking-wider">Active Target Lock</span>
+                    <i class="fas fa-crosshair text-red-500" id="target-icon"></i>
+                </div>
+                <div class="mt-2 text-2xl font-bold tracking-tight text-white transition-all duration-300" id="target-display">
+                    [ Random ]
+                </div>
+                <button onclick="clearForcedWinner()" id="btn-clear-rig" class="hidden text-left text-xs text-red-400 hover:text-red-300 mt-2 font-semibold">
+                    <i class="fas fa-times mr-1"></i> Release Rig Lock
+                </button>
+            </div>
+
+        </div>
+
+        <!-- LIVE WORKSPACE -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+            
+            <!-- LEFT COLUMN: SETTINGS / UTILITIES -->
+            <div class="flex flex-col gap-4">
+                <div class="admin-card p-5 rounded-xl flex flex-col gap-4">
+                    <h2 class="font-bold text-white tracking-wide border-b border-[#2d2f34] pb-2 text-sm uppercase text-gray-400">
+                        <i class="fas fa-cogs mr-2"></i> Quick Actions
+                    </h2>
+                    <button onclick="clearForcedWinner()" class="w-full bg-[#2d2f34] hover:bg-[#383a40] text-white py-2.5 rounded-lg text-sm font-semibold transition flex items-center justify-center gap-2 border border-[#3e4147]">
+                        <i class="fas fa-random text-xs"></i> Set Back to Random
+                    </button>
+                    <div class="p-3 bg-blue-500/5 rounded-lg border border-blue-500/10 text-xs text-blue-400 leading-relaxed">
+                        <i class="fas fa-info-circle mr-1"></i> Changes occur in real-time. There is no need to reload either page to confirm updates.
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: SEARCHABLE NAMES SYNC LIST -->
+            <div class="admin-card p-6 rounded-xl md:col-span-2 flex flex-col h-[500px]">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[#2d2f34] pb-4 mb-4 shrink-0">
+                    <div>
+                        <h2 class="font-bold text-white text-base">Current Active Entries</h2>
+                        <p class="text-xs text-gray-500">Live synchronized entries from the user's active wheel.</p>
+                    </div>
+                    <!-- SEARCH BAR -->
+                    <div class="relative max-w-xs w-full">
+                        <i class="fas fa-search absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 text-xs"></i>
+                        <input type="text" id="name-search" oninput="filterSyncedNames()" placeholder="Search names..." class="w-full bg-[#0d0d0e] border border-[#2d2f34] text-sm text-white rounded-lg pl-8 pr-3 py-1.5 focus:outline-none focus:border-blue-500 transition">
+                    </div>
+                </div>
+
+                <!-- NAME TILES CONTAINER -->
+                <div id="names-list-wrapper" class="flex-1 overflow-y-auto space-y-2 pr-1">
+                    <div class="text-center py-16 text-gray-500 text-sm">
+                        <i class="fas fa-circle-notch animate-spin text-xl mb-2 block text-blue-500"></i>
+                        Waiting for active wheel client to synchronize entries...
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <!-- BACKEND ROUTING AND SOCKET CONTROLLERS -->
+    <script>
+        let socket = null;
+        let syncedEntries = [];
+        let currentlyRiggedWinner = null;
+
+        function connectAdminWebSocket() {
+            const socketScheme = window.location.protocol === 'https:' ? 'wss://' : 'ws://';
+            const socketUrl = `${socketScheme}${window.location.host}/ws/wheel/`;
+            
+            socket = new WebSocket(socketUrl);
+            const statusLabel = document.getElementById("socket-status");
+
+            socket.onopen = () => {
+                statusLabel.className = "text-xs px-2.5 py-1 rounded bg-emerald-500/10 text-emerald-500 flex items-center gap-1.5 font-medium border border-emerald-500/20";
+                statusLabel.innerHTML = `<span class="w-2 h-2 rounded-full bg-emerald-500"></span> Online`;
+            };
+
+            socket.onclose = () => {
+                statusLabel.className = "text-xs px-2.5 py-1 rounded bg-red-500/10 text-red-500 flex items-center gap-1.5 font-medium border border-red-500/20";
+                statusLabel.innerHTML = `<span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span> Offline`;
+                setTimeout(connectAdminWebSocket, 3000); // Reconnect loop
+            };
+
+            socket.onmessage = (e) => {
+                const packet = JSON.parse(e.data);
+                if (!packet) return;
+
+                // Sync server state updates
+                if (packet.type === "state_sync") {
+                    syncedEntries = packet.entries || [];
+                    updateActiveRiggedDisplay(packet.forced_winner);
+                    renderSyncedNames();
+                }
+                else if (packet.type === "update_entries") {
+                    syncedEntries = packet.entries || [];
+                    renderSyncedNames();
+                }
+                else if (packet.type === "update_forced_winner") {
+                    updateActiveRiggedDisplay(packet.forced_winner);
+                }
+            };
+        }
+
+        function renderSyncedNames() {
+            const container = document.getElementById('names-list-wrapper');
+            const searchVal = document.getElementById('name-search').value.toLowerCase().trim();
+            
+            const filtered = syncedEntries.filter(name => name.toLowerCase().includes(searchVal));
+
+            if (syncedEntries.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-gray-500 text-sm">
+                        <i class="fas fa-info-circle mb-2 block text-gray-600 text-lg"></i>
+                        The wheel has no active entries. Add names to the wheel to list them here.
+                    </div>`;
+                return;
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-16 text-gray-500 text-sm">
+                        No matches found for "${searchVal}"
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(name => {
+                const isSelected = name === currentlyRiggedWinner;
+                return `
+                    <div onclick="setForcedWinner('${name}')" class="flex items-center justify-between p-3.5 rounded-lg border cursor-pointer transition ${
+                        isSelected 
+                        ? 'bg-red-500/10 border-red-500/40 hover:bg-red-500/20' 
+                        : 'bg-[#151618] border-[#2d2f34] hover:bg-[#202124] hover:border-blue-500/30'
+                    }">
+                        <div class="flex items-center gap-3">
+                            <span class="w-2 h-2 rounded-full ${isSelected ? 'bg-red-500 animate-pulse' : 'bg-gray-600'}"></span>
+                            <span class="text-sm font-semibold ${isSelected ? 'text-white' : 'text-gray-300'}">${name}</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            ${isSelected 
+                                ? `<span class="text-xs font-bold text-red-500 uppercase tracking-wider"><i class="fas fa-crosshair mr-1"></i> Rig Locked</span>`
+                                : `<span class="text-xs text-gray-500 group-hover:text-gray-300">Force To Win</span>`
+                            }
+                        </div>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function filterSyncedNames() {
+            renderSyncedNames();
+        }
+
+        function setForcedWinner(name) {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: "set_forced_winner",
+                    winner: name
+                }));
+            }
+        }
+
+        function clearForcedWinner() {
+            if (socket && socket.readyState === WebSocket.OPEN) {
+                socket.send(JSON.stringify({
+                    type: "set_forced_winner",
+                    winner: null
+                }));
+            }
+        }
+
+        function updateActiveRiggedDisplay(forcedWinnerName) {
+            currentlyRiggedWinner = forcedWinnerName;
+            
+            const targetCard = document.getElementById("rig-target-card");
+            const targetDisplay = document.getElementById("target-display");
+            const clearBtn = document.getElementById("btn-clear-rig");
+            const targetIcon = document.getElementById("target-icon");
+
+            if (forcedWinnerName) {
+                targetCard.className = "admin-card p-5 rounded-xl border glowing-winner-border flex flex-col justify-between transition-all duration-300";
+                targetDisplay.textContent = forcedWinnerName;
+                targetDisplay.className = "mt-2 text-2xl font-bold tracking-tight text-red-500";
+                clearBtn.classList.remove("hidden");
+                targetIcon.className = "fas fa-crosshair text-red-500 animate-spin";
+            } else {
+                targetCard.className = "admin-card p-5 rounded-xl border border-[#2d2f34] flex flex-col justify-between transition-all duration-300";
+                targetDisplay.textContent = "[ Random ]";
+                targetDisplay.className = "mt-2 text-2xl font-bold tracking-tight text-gray-400";
+                clearBtn.classList.add("hidden");
+                targetIcon.className = "fas fa-random text-gray-500";
+            }
+            renderSyncedNames();
+        }
+
+        // Initialize admin sockets
+        window.onload = () => {
+            connectAdminWebSocket();
+        };
+    </script>
+</body>
+</html>

@@ -1,0 +1,1136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Wheel of Names · Editor Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* ===== RESET & BASE ===== */
+        *,
+        *:before,
+        *:after {
+            box-sizing: inherit;
+            -webkit-tap-highlight-color: transparent;
+        }
+        html,
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Quicksand', Roboto, -apple-system, Helvetica Neue, Helvetica, Arial, sans-serif;
+            font-size: 14px;
+            line-height: 1.5;
+            background: #121212;
+            color: #e0e0e0;
+            box-sizing: border-box;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        /* ===== UTILITY ===== */
+        .q-icon {
+            font-size: 1.2rem;
+            width: 1em;
+            height: 1em;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .q-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            font: inherit;
+            color: inherit;
+            outline: none;
+            padding: 4px 12px;
+            border-radius: 4px;
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: none;
+            font-weight: 500;
+            transition: background .2s, color .2s;
+            position: relative;
+        }
+        .q-btn:hover {
+            background: rgba(255, 255, 255, 0.08);
+        }
+        .q-btn--flat {
+            background: transparent;
+        }
+        .q-btn--round {
+            border-radius: 50%;
+            min-width: 36px;
+            justify-content: center;
+            padding: 0 8px;
+        }
+        .q-btn--no-caps {
+            text-transform: none;
+        }
+        .q-btn--unelevated {
+            box-shadow: none;
+        }
+        .q-btn--dense {
+            min-height: 28px;
+            padding: 4px 8px;
+            font-size: 12px;
+        }
+        .q-btn--rectangle {
+            border-radius: 3px;
+        }
+        .bg-primary {
+            background: #1976d2;
+        }
+        .bg-primary:hover {
+            background: #1565c0;
+        }
+        .text-white {
+            color: #fff;
+        }
+        .bg-warning {
+            background: #f2c037;
+        }
+        .text-black {
+            color: #000;
+        }
+        .bg-grey-7 {
+            background: #757575;
+        }
+        .text-grey-7 {
+            color: #757575;
+        }
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+        }
+        .column {
+            display: flex;
+            flex-direction: column;
+        }
+        .flex {
+            display: flex;
+        }
+        .items-center {
+            align-items: center;
+        }
+        .justify-between {
+            justify-content: space-between;
+        }
+        .no-wrap {
+            flex-wrap: nowrap;
+        }
+        .gap-sm {
+            gap: 8px;
+        }
+        .gap {
+            gap: 16px;
+        }
+        .relative-position {
+            position: relative;
+        }
+        .absolute {
+            position: absolute;
+        }
+        .fixed {
+            position: fixed;
+        }
+        .fit {
+            width: 100% !important;
+            height: 100% !important;
+        }
+        .q-space {
+            flex: 1;
+        }
+        .ellipsis {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        .rounded-borders {
+            border-radius: 4px;
+        }
+        .shadow-1 {
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.2);
+        }
+        .shadow-2 {
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2), 0 3px 1px -2px rgba(0, 0, 0, 0.15);
+        }
+        .q-badge {
+            background: #1976d2;
+            color: #fff;
+            border-radius: 4px;
+            padding: 2px 6px;
+            font-size: 11px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            line-height: 1.2;
+        }
+        .q-badge--rounded {
+            border-radius: 20px;
+        }
+        .q-badge--floating {
+            position: absolute;
+            top: -6px;
+            right: -3px;
+            font-size: 10px;
+            padding: 1px 5px;
+        }
+        .q-checkbox {
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 12px;
+            color: #e0e0e0;
+        }
+        .q-checkbox__inner {
+            width: 20px;
+            height: 20px;
+            border-radius: 2px;
+            border: 2px solid #888;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background .22s, border-color .22s;
+            position: relative;
+            flex-shrink: 0;
+        }
+        .q-checkbox__inner--truthy {
+            background: #1976d2;
+            border-color: #1976d2;
+        }
+        .q-checkbox__inner--truthy .q-checkbox__truthy {
+            stroke-dashoffset: 0;
+        }
+        .q-checkbox__inner--falsy .q-checkbox__truthy,
+        .q-checkbox__inner--falsy .q-checkbox__indet {
+            stroke-dashoffset: 30;
+            opacity: 0;
+        }
+        .q-checkbox__truthy {
+            fill: none;
+            stroke: #fff;
+            stroke-width: 3px;
+            stroke-dasharray: 30;
+            stroke-dashoffset: 30;
+            transition: stroke-dashoffset .18s cubic-bezier(.4, 0, .6, 1);
+        }
+        .q-checkbox__indet {
+            fill: #fff;
+            opacity: 0;
+            transition: opacity .22s;
+        }
+        .q-checkbox__label {
+            cursor: pointer;
+        }
+        .q-checkbox input {
+            position: absolute;
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .q-checkbox--dark .q-checkbox__inner {
+            border-color: #888;
+        }
+        .q-checkbox--dark .q-checkbox__inner--truthy {
+            border-color: #1976d2;
+        }
+
+        /* ===== HEADER ===== */
+        .q-header {
+            position: sticky;
+            top: 0;
+            z-index: 2000;
+            background: #1e1e1e;
+            color: #e0e0e0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            /* EXACT SHADOW from the original - shadow-2 */
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2), 0 3px 1px -2px rgba(0, 0, 0, 0.15);
+            height: 50px;
+            display: flex;
+            align-items: center;
+        }
+        .q-toolbar {
+            min-height: 50px;
+            padding: 0 12px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            width: 100%;
+        }
+        .q-toolbar__title {
+            font-size: 21px;
+            font-weight: 400;
+            letter-spacing: .01em;
+            padding: 0 8px;
+            white-space: nowrap;
+        }
+        .q-toolbar img {
+            border-radius: 8px;
+        }
+        .q-badge--warning {
+            background: #f2c037;
+            color: #000;
+        }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main-layout {
+            display: flex;
+            height: calc(100vh - 50px);
+            position: relative;
+            overflow: hidden;
+            padding: 8px 8px 8px 8px;
+        }
+        .main-content {
+            flex: 1;
+            padding: 12px;
+            overflow-y: auto;
+            background: #121212;
+            height: 100%;
+            border-radius: 4px;
+        }
+        .main-content--full {
+            width: 100%;
+        }
+
+        /* ===== RIGHT PANEL (THE SIDEBAR) ===== */
+        .right-panel-wrapper {
+            position: relative;
+            height: 100%;
+            display: flex;
+            align-items: stretch;
+            transition: all 0.3s ease;
+            padding: 0 0 0 0;
+        }
+        .right-panel-wrapper--collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            overflow: visible;
+        }
+        .right-panel {
+            background: #1e1e1e;
+            border-left: 1px solid rgba(255, 255, 255, 0.06);
+            width: 420px;
+            min-width: 320px;
+            max-width: 50vw;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            /* EXACT SHADOW from the original - shadow-2 with extra spread */
+            box-shadow: 0 1px 5px rgba(0, 0, 0, 0.3), 0 2px 2px rgba(0, 0, 0, 0.2), 0 3px 1px -2px rgba(0, 0, 0, 0.15);
+            transition: all 0.3s ease;
+            overflow: hidden;
+            border-radius: 8px;
+            margin: 0 0 0 0;
+        }
+        /* Adding white shadow glow effect */
+        .right-panel::before {
+            content: '';
+            position: absolute;
+            top: -2px;
+            left: -2px;
+            right: -2px;
+            bottom: -2px;
+            border-radius: 10px;
+            background: transparent;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.05), 0 0 40px rgba(255, 255, 255, 0.02);
+            pointer-events: none;
+            z-index: -1;
+        }
+        .right-panel--collapsed {
+            width: 0 !important;
+            min-width: 0 !important;
+            border-left: none;
+            box-shadow: none;
+            overflow: visible;
+            margin: 0;
+        }
+        .right-panel .q-card {
+            background: #1e1e1e;
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+            width: 100%;
+            min-width: 320px;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .right-panel--collapsed .q-card {
+            display: none;
+        }
+
+        /* ===== TOGGLE BUTTON (desktop) - at TOP ===== */
+        .panel-toggle-btn {
+            position: absolute;
+            left: -18px;
+            top: 24px;
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #1976d2;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            z-index: 10;
+            box-shadow: 0 2px 8px rgba(25, 118, 210, 0.4);
+            transition: transform 0.3s ease, left 0.3s ease, right 0.3s ease;
+        }
+        .panel-toggle-btn:hover {
+            background: #1565c0;
+            transform: scale(1.05);
+        }
+        .panel-toggle-btn--collapsed {
+            left: auto;
+            right: -18px;
+            top: 24px;
+        }
+        .panel-toggle-btn--collapsed:hover {
+            transform: scale(1.05);
+        }
+
+        /* ===== TABS ===== */
+        .q-tabs {
+            display: flex;
+            position: relative;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+            background: #1a1a1a;
+            border-radius: 0;
+            flex-shrink: 0;
+        }
+        .q-tabs--dense .q-tab {
+            min-height: 36px;
+            padding: 0 12px;
+        }
+        .q-tabs__content {
+            display: flex;
+            flex: 1;
+            overflow: hidden;
+            border-radius: inherit;
+        }
+        .q-tabs__content--align-justify .q-tab {
+            flex: 1;
+        }
+        .q-tab {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            padding: 0 16px;
+            min-height: 48px;
+            color: rgba(255, 255, 255, 0.6);
+            cursor: pointer;
+            position: relative;
+            transition: color .3s, background .3s;
+            text-transform: none;
+            font-weight: 500;
+            font-size: 14px;
+            user-select: none;
+            border-bottom: 2px solid transparent;
+        }
+        .q-tab:hover {
+            color: #fff;
+        }
+        .q-tab--active {
+            color: #1976d2;
+            border-bottom-color: #1976d2;
+        }
+        .q-tab--inactive {
+            color: rgba(255, 255, 255, 0.5);
+        }
+        .q-tab__content {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 0;
+        }
+        .q-tab__label {
+            font-size: 14px;
+            font-weight: 500;
+        }
+        .q-tab__indicator {
+            position: absolute;
+            bottom: -2px;
+            left: 0;
+            height: 2px;
+            background: #1976d2;
+            transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+            width: 100%;
+            opacity: 0;
+        }
+        .q-tab--active .q-tab__indicator {
+            opacity: 1;
+        }
+        .q-tabs__arrow {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            width: 36px;
+            color: rgba(255, 255, 255, 0.4);
+            cursor: pointer;
+            font-size: 20px;
+        }
+        .q-tabs__arrow--faded {
+            opacity: 0.3;
+            pointer-events: none;
+        }
+
+        /* ===== TAB PANELS ===== */
+        .q-tab-panels {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            border-radius: 0 0 4px 4px;
+            background: #1a1a1a;
+            min-height: 200px;
+            position: relative;
+            overflow: hidden;
+        }
+        .q-tab-panels--dark {
+            background: #1a1a1a;
+        }
+        .q-panel {
+            flex: 1;
+            padding: 16px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            overflow-y: auto;
+        }
+        .q-tab-panel {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            padding: 16px;
+        }
+        .q-tab-panel .flex {
+            display: flex;
+        }
+        .q-tab-panel .f-col {
+            flex-direction: column;
+        }
+        .q-tab-panel .gap {
+            gap: 16px;
+        }
+        .q-tab-panel .no-wrap {
+            flex-wrap: nowrap;
+        }
+
+        /* ===== EDITOR BUTTONS ===== */
+        .editor-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+        .editor-buttons .q-btn {
+            font-size: 12px;
+            padding: 4px 8px;
+            min-height: 28px;
+            border-radius: 3px;
+            background: #1976d2;
+            color: #fff;
+        }
+        .editor-buttons .q-btn:hover {
+            background: #1565c0;
+        }
+        .editor-buttons .q-btn i {
+            font-size: 12px;
+        }
+        .editor-buttons .q-btn .block {
+            display: inline-block;
+        }
+        .editor-buttons .q-btn .on-left {
+            margin-right: 4px;
+        }
+
+        /* ===== BASIC EDITOR ===== */
+        .basic-editor {
+            border: 1px solid #333;
+            border-radius: 4px;
+            flex: 1;
+            padding: 12px;
+            font-family: BlinkMacSystemFont, Segoe UI, Roboto, Oxygen, Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, Helvetica, Arial, sans-serif;
+            overflow: auto;
+            min-height: 120px;
+            background: #141414;
+            color: #e0e0e0;
+            outline: none;
+        }
+        .basic-editor:focus {
+            border-color: #1976d2;
+        }
+        .basic-editor div {
+            padding: 2px 0;
+        }
+        .basic-editor div:last-child {
+            padding-bottom: 0;
+        }
+
+        /* ===== ADD WHEEL BUTTON ===== */
+        .q-btn-group {
+            display: inline-flex;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+        .q-btn-group .q-btn {
+            border-radius: 0;
+        }
+        .q-btn-group .q-btn:first-child {
+            border-radius: 3px 0 0 3px;
+        }
+        .q-btn-group .q-btn:last-child {
+            border-radius: 0 3px 3px 0;
+        }
+        .q-btn-dropdown--split .q-btn-dropdown__arrow-container {
+            border-left: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 0 4px;
+        }
+        .q-btn-dropdown__arrow {
+            font-size: 14px;
+        }
+        .q-btn-dropdown__arrow-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 32px;
+        }
+
+        /* ===== BETA BADGE ===== */
+        .beta-badge {
+            position: absolute;
+            left: -4px;
+            top: -6px;
+            background: #f2c037;
+            color: #000;
+            font-size: 9px;
+            font-weight: 600;
+            padding: 1px 5px;
+            border-radius: 4px;
+            letter-spacing: 0.3px;
+            z-index: 5;
+        }
+
+        /* ===== PANEL FOOTER ===== */
+        .panel-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-top: 1px solid rgba(255, 255, 255, 0.04);
+            background: #1a1a1a;
+            border-radius: 0 0 4px 4px;
+            flex-shrink: 0;
+            min-height: 40px;
+        }
+        .panel-footer a {
+            color: #888;
+            font-size: 0.85rem;
+            text-decoration: none;
+        }
+        .panel-footer a:hover {
+            color: #fff;
+        }
+        .panel-footer .version-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.85rem;
+            color: #888;
+        }
+        .panel-footer .new-badge {
+            background: #1976d2;
+            color: #fff;
+            font-size: 0.7rem;
+            padding: 0 8px;
+            border-radius: 12px;
+            text-decoration: none;
+            line-height: 22px;
+        }
+        .panel-footer .new-badge:hover {
+            background: #1565c0;
+        }
+
+        /* ===== FULLSCREEN MODE ===== */
+        .q-header--fullscreen {
+            background: #0d0d0d !important;
+            border-bottom-color: rgba(255, 255, 255, 0.05) !important;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.6) !important;
+        }
+        .q-header--fullscreen .q-toolbar {
+            min-height: 42px;
+        }
+        .q-header--fullscreen .q-toolbar__title {
+            font-size: 17px;
+        }
+        .q-header--fullscreen .q-btn {
+            padding: 2px 10px;
+            min-height: 30px;
+            font-size: 0.85rem;
+        }
+        .q-header--fullscreen .hide-in-fullscreen {
+            display: none !important;
+        }
+        .q-header--fullscreen .show-in-fullscreen {
+            display: flex !important;
+        }
+        .show-in-fullscreen {
+            display: none;
+        }
+
+        /* ===== MOBILE ===== */
+        .hamburger {
+            display: none;
+        }
+        .desktop-only {
+            display: flex;
+        }
+        .mobile-only {
+            display: none;
+        }
+
+        .panel-overlay {
+            position: fixed;
+            top: 50px;
+            left: 0;
+            width: 100%;
+            height: calc(100vh - 50px);
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        .panel-overlay--open {
+            display: block;
+        }
+
+        @media (max-width: 900px) {
+            .hamburger {
+                display: inline-flex;
+            }
+            .desktop-only {
+                display: none !important;
+            }
+            .mobile-only {
+                display: flex !important;
+            }
+            .right-panel {
+                position: fixed;
+                top: 58px;
+                right: -420px;
+                height: calc(100vh - 66px);
+                max-width: 85vw;
+                width: 380px;
+                z-index: 1000;
+                transition: right 0.3s ease;
+                border-left: 1px solid rgba(255, 255, 255, 0.1);
+                box-shadow: 0 4px 24px rgba(0, 0, 0, 0.5);
+                border-radius: 8px;
+                margin: 0 8px 8px 0;
+            }
+            .right-panel--mobile-open {
+                right: 8px;
+            }
+            .right-panel .q-card {
+                min-width: 0;
+            }
+            .panel-toggle-btn {
+                display: none !important;
+            }
+            .right-panel-wrapper {
+                width: auto !important;
+            }
+            .main-content--with-panel {
+                width: 100%;
+            }
+            .main-layout {
+                padding: 0;
+            }
+        }
+
+        @media (max-width: 600px) {
+            .q-toolbar {
+                padding: 0 8px;
+            }
+            .q-toolbar__title {
+                font-size: 17px;
+            }
+            .right-panel {
+                width: 100%;
+                max-width: 100%;
+                right: -100%;
+                top: 58px;
+                height: calc(100vh - 66px);
+                margin: 0;
+                border-radius: 8px 0 0 8px;
+            }
+            .right-panel--mobile-open {
+                right: 0;
+            }
+            .q-tab {
+                padding: 0 8px;
+                font-size: 13px;
+            }
+            .editor-buttons .q-btn {
+                font-size: 11px;
+                padding: 3px 6px;
+                min-height: 24px;
+            }
+        }
+
+        /* scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #444;
+            border-radius: 3px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #555;
+        }
+
+        .hidden-file {
+            display: none !important;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ===== HEADER ===== -->
+    <header class="q-header" id="mainHeader">
+        <div class="q-toolbar">
+            <img src="https://wheelofnames.com/images/logo-dark-background-38.png" alt="logo" width="38" height="38" style="border-radius:8px; flex-shrink:0;">
+            <span class="q-toolbar__title ellipsis" style="flex-shrink:1; min-width:0;">wheelofnames.com</span>
+            <span class="q-badge q-badge--warning hide-in-fullscreen" style="flex-shrink:0;">PREMIUM</span>
+            <div class="q-space"></div>
+
+            <!-- Desktop buttons (hidden in fullscreen) -->
+            <div class="row items-center no-wrap gap-sm desktop-only hide-in-fullscreen">
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-palette"></i> Customize</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-file"></i> New</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-folder-open"></i> Open</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-save"></i> Save</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-share-alt"></i> Share</button>
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-search"></i> Gallery</button>
+                <button class="q-btn q-btn--flat q-btn--round" onclick="toggleFullscreen()" aria-label="Fullscreen" id="fullscreenBtn"><i class="fas fa-expand"></i></button>
+
+                <div style="position:relative; display:inline-block;">
+                    <button class="q-btn q-btn--flat q-btn--no-caps" onclick="toggleMoreMenu()"><i class="fas fa-ellipsis-v"></i></button>
+                    <div class="q-menu" id="moreMenu" style="display:none; position:absolute; right:0; top:100%; background:#2a2a2a; border-radius:4px; min-width:200px; box-shadow:0 4px 16px rgba(0,0,0,0.5); padding:8px 0; z-index:3000;">
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-comment" style="width:24px;"></i> Feedback</div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-question-circle" style="width:24px;"></i> FAQ</div>
+                        <div style="height:1px; background:rgba(255,255,255,0.06); margin:4px 12px;"></div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-file-arrow-up" style="width:24px;"></i> Import Spreadsheet</div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-user-alt" style="width:24px;"></i> My account</div>
+                        <div class="q-item" style="padding:8px 16px; display:flex; align-items:center; gap:12px; color:#c0c0c0; cursor:pointer;"><i class="fas fa-cog" style="width:24px;"></i> Preferences</div>
+                    </div>
+                </div>
+
+                <button class="q-btn q-btn--flat q-btn--no-caps"><i class="fas fa-globe"></i> English</button>
+            </div>
+
+            <!-- Fullscreen buttons (only folder + fullscreen toggle) -->
+            <div class="row items-center no-wrap gap-sm show-in-fullscreen">
+                <button class="q-btn q-btn--flat q-btn--round"><i class="fas fa-folder-open"></i></button>
+                <button class="q-btn q-btn--flat q-btn--round" onclick="toggleFullscreen()"><i class="fas fa-compress"></i></button>
+            </div>
+
+            <!-- Mobile hamburger -->
+            <button class="q-btn q-btn--flat q-btn--round hamburger" id="hamburgerBtn" aria-label="Menu">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- ===== MAIN LAYOUT ===== -->
+    <div class="main-layout">
+
+        <!-- ===== MAIN CONTENT AREA ===== -->
+        <div class="main-content" id="mainContent">
+            <div style="display:flex; align-items:center; justify-content:center; height:100%; color:#555; font-size:1.2rem;">
+                <span>Wheel canvas area</span>
+            </div>
+        </div>
+
+        <!-- ===== RIGHT PANEL WRAPPER ===== -->
+        <div class="right-panel-wrapper" id="panelWrapper">
+            <!-- Toggle button (desktop) - at TOP -->
+            <button class="panel-toggle-btn" id="panelToggleBtn" onclick="togglePanel()" aria-label="Toggle panel">
+                <i class="fas fa-chevron-right" id="toggleIcon"></i>
+            </button>
+
+            <!-- RIGHT PANEL -->
+            <div class="right-panel" id="rightPanel">
+                <div class="q-card q-card--dark full-height flex f-col">
+
+                    <!-- TABS -->
+                    <div class="q-tabs q-tabs--dense" role="tablist">
+                        <div class="q-tabs__content q-tabs__content--align-justify">
+                            <div class="q-tab q-tab--active" role="tab" aria-selected="true" onclick="switchTab('entries')">
+                                <div class="q-tab__content">
+                                    <span class="q-tab__label">Entries</span>
+                                    <span class="q-badge bg-grey-7 q-badge--rounded" style="margin-left:6px;">6</span>
+                                </div>
+                                <div class="q-tab__indicator"></div>
+                            </div>
+                            <div class="q-tab q-tab--inactive" role="tab" aria-selected="false" onclick="switchTab('results')">
+                                <div class="q-tab__content">
+                                    <span class="q-tab__label">Results</span>
+                                    <span class="q-badge bg-grey-7 q-badge--rounded" style="margin-left:6px;">1</span>
+                                </div>
+                                <div class="q-tab__indicator"></div>
+                            </div>
+                        </div>
+                        <i class="q-icon fas fa-chevron-left q-tabs__arrow q-tabs__arrow--left"></i>
+                        <i class="q-icon fas fa-chevron-right q-tabs__arrow q-tabs__arrow--right q-tabs__arrow--faded"></i>
+                    </div>
+
+                    <!-- TAB PANELS -->
+                    <div class="q-tab-panels q-tab-panels--dark shadow-1 rounded-borders flex-1" style="min-height:200px;">
+                        <!-- Entries Panel -->
+                        <div class="q-panel q-tab-panel" id="panelEntries">
+                            <div class="editor-buttons">
+                                <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps q-btn--dense" style="font-size:12px; padding:4px 8px;">
+                                    <i class="fas fa-random on-left"></i> Shuffle
+                                </button>
+                                <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps q-btn--dense" style="font-size:12px; padding:4px 8px;">
+                                    <i class="fas fa-sort-alpha-up on-left"></i> Sort
+                                </button>
+                                <div style="position:relative; display:inline-block;">
+                                    <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps q-btn--dense q-btn-dropdown q-btn-dropdown--simple" style="font-size:12px; padding:4px 8px;">
+                                        <i class="fas fa-image on-left"></i> Add image
+                                        <i class="fas fa-caret-down" style="margin-left:4px; font-size:11px;"></i>
+                                    </button>
+                                </div>
+                                <input type="file" accept="image/*" multiple class="hidden-file" id="fileInput1">
+                                <input type="file" accept="image/*" class="hidden-file" id="fileInput2">
+                                <input type="file" accept="image/*" class="hidden-file" id="fileInput3">
+
+                                <label class="q-checkbox q-checkbox--dark" style="font-size:12px;">
+                                    <input type="checkbox">
+                                    <span class="q-checkbox__inner q-checkbox__inner--falsy">
+                                        <svg class="q-checkbox__truthy" viewBox="0 0 24 24">
+                                            <path d="M1.73,12.91 8.1,19.28 22.79,4.59"></path>
+                                        </svg>
+                                    </span>
+                                    <span class="q-checkbox__label">Advanced</span>
+                                </label>
+                            </div>
+
+                            <div class="basic-editor" contenteditable="true" role="textbox" spellcheck="false">
+                                <div>Ali</div>
+                                <div>Beatriz</div>
+                                <div>Charles</div>
+                                <div>Diya</div>
+                                <div>Eric</div>
+                                <div>Fatima</div>
+                            </div>
+
+                            <div style="position:relative;">
+                                <div class="q-btn-group q-btn-group--unelevated">
+                                    <button class="q-btn q-btn--unelevated bg-primary text-white q-btn--no-caps" style="padding:8px;">
+                                        <i class="fas fa-plus on-left"></i> Add wheel
+                                    </button>
+                                    <button class="q-btn q-btn--unelevated bg-primary text-white q-btn-dropdown__arrow-container" style="padding:8px;">
+                                        <i class="fas fa-caret-down q-btn-dropdown__arrow"></i>
+                                    </button>
+                                </div>
+                                <span class="beta-badge">Beta</span>
+                            </div>
+                        </div>
+
+                        <!-- Results Panel -->
+                        <div class="q-panel q-tab-panel" id="panelResults" style="display:none;">
+                            <div class="editor-buttons">
+                                <button class="q-btn q-btn--unelevated" style="background:#333; color:#e0e0e0; font-size:12px; padding:4px 8px;">
+                                    <i class="fas fa-sort-alpha-up on-left"></i> Sort
+                                </button>
+                                <button class="q-btn q-btn--unelevated" style="background:#333; color:#e0e0e0; font-size:12px; padding:4px 8px;">
+                                    <i class="fas fa-times on-left"></i> Clear
+                                </button>
+                                <button class="q-btn q-btn--unelevated" style="background:#333; color:#e0e0e0; font-size:12px; padding:4px 8px;">
+                                    <i class="fas fa-file-arrow-down on-left"></i> Export
+                                </button>
+                            </div>
+                            <div class="basic-editor" style="min-height:150px; color:#888; display:flex; align-items:center; justify-content:center; font-size:16px;">
+                                <span>No results yet</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Panel Footer -->
+                    <div class="panel-footer">
+                        <div class="version-info">
+                            <span>Version 416</span>
+                            <a class="new-badge" href="#">New!</a>
+                        </div>
+                        <a href="#">Changelog</a>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mobile overlay -->
+            <div class="panel-overlay" id="panelOverlay"></div>
+        </div>
+    </div>
+
+    <!-- ===== JAVASCRIPT ===== -->
+    <script>
+        // ===== PANEL TOGGLE (desktop) =====
+        let panelCollapsed = false;
+        const panel = document.getElementById('rightPanel');
+        const panelWrapper = document.getElementById('panelWrapper');
+        const toggleBtn = document.getElementById('panelToggleBtn');
+        const toggleIcon = document.getElementById('toggleIcon');
+
+        function togglePanel() {
+            panelCollapsed = !panelCollapsed;
+            panel.classList.toggle('right-panel--collapsed', panelCollapsed);
+            panelWrapper.classList.toggle('right-panel-wrapper--collapsed', panelCollapsed);
+            toggleBtn.classList.toggle('panel-toggle-btn--collapsed', panelCollapsed);
+            toggleIcon.className = panelCollapsed ? 'fas fa-chevron-left' : 'fas fa-chevron-right';
+            document.getElementById('mainContent').classList.toggle('main-content--full', panelCollapsed);
+        }
+
+        // ===== MOBILE PANEL TOGGLE =====
+        const hamburgerBtn = document.getElementById('hamburgerBtn');
+        const panelOverlay = document.getElementById('panelOverlay');
+
+        function openMobilePanel() {
+            panel.classList.add('right-panel--mobile-open');
+            panelOverlay.classList.add('panel-overlay--open');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMobilePanel() {
+            panel.classList.remove('right-panel--mobile-open');
+            panelOverlay.classList.remove('panel-overlay--open');
+            document.body.style.overflow = '';
+        }
+
+        hamburgerBtn.addEventListener('click', function(e) {
+            e.stopPropagation();
+            if (panel.classList.contains('right-panel--mobile-open')) {
+                closeMobilePanel();
+            } else {
+                openMobilePanel();
+            }
+        });
+
+        panelOverlay.addEventListener('click', closeMobilePanel);
+
+        // ===== TAB SWITCHING =====
+        function switchTab(tab) {
+            const entriesTab = document.querySelector('.q-tab:nth-child(1)');
+            const resultsTab = document.querySelector('.q-tab:nth-child(2)');
+            const entriesPanel = document.getElementById('panelEntries');
+            const resultsPanel = document.getElementById('panelResults');
+
+            if (tab === 'entries') {
+                entriesTab.classList.add('q-tab--active');
+                entriesTab.classList.remove('q-tab--inactive');
+                resultsTab.classList.add('q-tab--inactive');
+                resultsTab.classList.remove('q-tab--active');
+                entriesPanel.style.display = 'flex';
+                resultsPanel.style.display = 'none';
+            } else {
+                resultsTab.classList.add('q-tab--active');
+                resultsTab.classList.remove('q-tab--inactive');
+                entriesTab.classList.add('q-tab--inactive');
+                entriesTab.classList.remove('q-tab--active');
+                resultsPanel.style.display = 'flex';
+                entriesPanel.style.display = 'none';
+            }
+        }
+
+        // ===== FULLSCREEN =====
+        let isFullscreen = false;
+        const header = document.getElementById('mainHeader');
+        const fsBtn = document.getElementById('fullscreenBtn');
+
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().then(() => {
+                    isFullscreen = true;
+                    updateFullscreenUI();
+                }).catch(() => {});
+            } else {
+                document.exitFullscreen().then(() => {
+                    isFullscreen = false;
+                    updateFullscreenUI();
+                }).catch(() => {});
+            }
+        }
+
+        function updateFullscreenUI() {
+            if (isFullscreen) {
+                header.classList.add('q-header--fullscreen');
+                fsBtn.innerHTML = '<i class="fas fa-compress"></i>';
+                if (!panelCollapsed) {
+                    togglePanel();
+                }
+            } else {
+                header.classList.remove('q-header--fullscreen');
+                fsBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            }
+        }
+
+        document.addEventListener('fullscreenchange', () => {
+            isFullscreen = !!document.fullscreenElement;
+            updateFullscreenUI();
+        });
+
+        // ===== MORE MENU =====
+        let moreMenuOpen = false;
+
+        function toggleMoreMenu() {
+            const menu = document.getElementById('moreMenu');
+            moreMenuOpen = !moreMenuOpen;
+            menu.style.display = moreMenuOpen ? 'block' : 'none';
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('moreMenu');
+            const btn = e.target.closest('.q-btn');
+            if (menu && !menu.contains(e.target) && !btn?.querySelector('.fa-ellipsis-v')) {
+                menu.style.display = 'none';
+                moreMenuOpen = false;
+            }
+        });
+
+        // ===== ESCAPE KEY =====
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeMobilePanel();
+                if (moreMenuOpen) {
+                    document.getElementById('moreMenu').style.display = 'none';
+                    moreMenuOpen = false;
+                }
+            }
+        });
+
+        // ===== RESPONSIVE: close mobile panel on resize to desktop =====
+        window.addEventListener('resize', function() {
+            if (window.innerWidth > 900 && panel.classList.contains('right-panel--mobile-open')) {
+                closeMobilePanel();
+            }
+        });
+
+        console.log('✅ Right editor panel with proper shadows, rounded corners, and top-aligned toggle');
+    </script>
+
+</body>
+</html>
