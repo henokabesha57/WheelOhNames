@@ -11,21 +11,30 @@ https://docs.djangoproject.com/en/6.0/ref/settings/
 """
 
 from pathlib import Path
+import os
+from dotenv import load_dotenv
 
+load_dotenv()
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
+SECRET_KEY = os.getenv("SECRET_KEY")
+
+DEBUG = os.getenv('DEBUG', 'True') == 'True'
+
 # Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/6.0/howto/deployment/checklist/
+# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-%)g7fy*91-evl+3@aue_^kp7rh9)4xoia*)p)vy9)ox#=q9-vk'
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DJANGO_SETTINGS_MODULE = 'core.settings'
+ALLOWED_HOSTS = os.getenv('ALLOWED_HOSTS').split(',')
 
-ALLOWED_HOSTS = []
+CSRF_TRUSTED_ORIGINS=os.getenv('CSRF_TRUSTED_ORIGINS').split(',')
+# SECURITY WARNING: keep the secret key used in production secret!
+
 
 
 # Application definition
@@ -46,8 +55,6 @@ INSTALLED_APPS = [
     #local apps
     'wheel',
 
-    'django_browser_reload',
-
 ]
 
 TAILWIND_APP_NAME = 'theme'
@@ -59,7 +66,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'django_browser_reload.middleware.BrowserReloadMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
 ]
 
 ROOT_URLCONF = 'core.urls'
@@ -86,21 +93,30 @@ SITE_ID = 1
 # Database
 # https://docs.djangoproject.com/en/6.0/ref/settings/#databases
 
+
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': BASE_DIR / 'db.sqlite3',
     }
 }
-# settings.py
 
-# Channel layers for WebSocket support
-# settings.py - Use this for local development only
-CHANNEL_LAYERS = {
-    "default": {
-        "BACKEND": "channels.layers.InMemoryChannelLayer",
-    },
-}
+if os.getenv('DEBUG') == 'True':
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels.layers.InMemoryChannelLayer",
+        }
+    }
+else:
+    CHANNEL_LAYERS = {
+        "default": {
+            "BACKEND": "channels_redis.core.RedisChannelLayer",
+            "CONFIG": {
+                "hosts": [os.getenv('REDIS_URL')],
+            },
+        },
+    }
+
 
 # Password validation
 # https://docs.djangoproject.com/en/6.0/ref/settings/#auth-password-validators
